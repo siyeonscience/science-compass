@@ -109,6 +109,25 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   font-size:64px;position:relative;margin-bottom:12px}
 .openbtn{width:100%;padding:13px;background:#f3f4f6;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:16px}
 .openbtn:hover{background:#e9ebef}
+.mediabox{margin-bottom:16px}
+.hero.clickable{cursor:pointer}
+.playmark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.playmark i{width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:24px;font-style:normal}
+.framewrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;margin-bottom:10px}
+.framewrap.tall{aspect-ratio:auto;height:62vh;min-height:380px;background:#fff;border:1px solid var(--line)}
+.framewrap iframe{width:100%;height:100%;border:0;display:block}
+.fallback{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;align-items:center;
+  justify-content:center;background:#f8f9fb;color:#6b7280;font-size:13px;text-align:center;padding:22px;line-height:1.7}
+.reader{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fdfdfd;
+  margin-bottom:10px;max-height:62vh;overflow-y:auto}
+.reader p{font-size:14px;line-height:1.85;margin-bottom:13px;white-space:pre-wrap}
+.readernote{font-size:11.5px;color:#6b7280;margin-bottom:10px;font-weight:600}
+.linkbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.linkbar button,.linkbar a{font-size:12px;padding:8px 12px;border-radius:8px;border:1px solid var(--line);
+  background:#fff;color:var(--fg);text-decoration:none;font-weight:600;cursor:pointer}
+.linkbar button:hover,.linkbar a:hover{background:#f3f4f6}
+.linkbar .tipx{font-size:11.5px;color:#6b7280;font-weight:400;border:0;background:none;padding:0}
 .metarow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .mtag{font-size:11.5px;padding:4px 9px;border-radius:6px;background:#f3f4f6;font-weight:600}
 .mcat{font-size:12.5px;font-weight:700}
@@ -500,6 +519,100 @@ async function awardIfDone(id){
   }
 }
 
+
+/* ===== 미디어 (앱 내부 재생 / 읽기) ===== */
+function renderMedia(c){
+  const box = $("#mediaBox");
+  if(!box) return;
+  const isV = c.type === "video";
+  const hasSrc = isV ? !!c.youtubeId : !!(c.url || c.excerpt);
+  box.innerHTML =
+    '<div class="hero clickable" id="heroBox" style="background:' + catGrad(c.category) + '">' +
+      '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' + (isV ? "🎬" : "📰") +
+      '<span class="playmark"><i>' + (isV ? "▶" : "📖") + '</i></span>' +
+    '</div>' +
+    '<button class="openbtn" id="openLink">' + (isV ? "▶ 영상 보기" : "📄 기사 읽기") + '</button>';
+  function start(){
+    if(!hasSrc){ toast("아직 링크가 연결되지 않았습니다 (교사 등록 예정)", 2600); return; }
+    if(isV) showVideo(c); else showArticle(c);
+  }
+  $("#openLink").addEventListener("click", start);
+  $("#heroBox").addEventListener("click", start);
+}
+
+function showVideo(c){
+  const src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(c.youtubeId) +
+              "?rel=0&modestbranding=1&playsinline=1&autoplay=1";
+  $("#mediaBox").innerHTML =
+    '<div class="framewrap">' +
+      '<iframe id="mediaFrame" src="' + src + '" title="영상" loading="lazy" ' +
+      'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+      'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
+    '</div>' +
+    '<div class="linkbar">' +
+      '<button id="mClose">■ 닫기</button>' +
+      '<a href="https://www.youtube.com/watch?v=' + encodeURIComponent(c.youtubeId) + '" target="_blank" rel="noopener">유튜브에서 열기</a>' +
+      '<span class="tipx">재생이 안 되면 업로더가 외부 재생을 막아 둔 영상입니다.</span>' +
+    '</div>';
+  $("#mClose").addEventListener("click", function(){ renderMedia(c); });
+}
+
+function showArticle(c){
+  const mode = c.readMode || "auto";
+  if(mode === "excerpt" || !c.url) showExcerpt(c);
+  else showArticleFrame(c);
+}
+
+function showArticleFrame(c){
+  $("#mediaBox").innerHTML =
+    '<div class="framewrap tall">' +
+      '<iframe id="mediaFrame" src="' + esc(c.url) + '" title="기사" ' +
+      'referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>' +
+      '<div class="fallback" id="artWait">기사를 불러오는 중입니다…</div>' +
+    '</div>' +
+    '<div class="linkbar">' +
+      '<button id="mClose">■ 닫기</button>' +
+      (c.excerpt ? '<button id="toEx">앱에서 안 열려요 → 발췌 읽기</button>' : '') +
+      '<a href="' + esc(c.url) + '" target="_blank" rel="noopener">원문 새 탭에서 열기</a>' +
+    '</div>';
+  const fr = $("#mediaFrame");
+  let loaded = false;
+  fr.addEventListener("load", function(){
+    loaded = true;
+    const w = $("#artWait");
+    if(w && w.parentNode) w.parentNode.removeChild(w);
+  });
+  setTimeout(function(){
+    if(loaded) return;
+    const w = $("#artWait");
+    if(!w) return;
+    w.innerHTML = '이 기사는 언론사가 외부 삽입을 막아 둔 것 같습니다.' +
+      (c.excerpt ? '<br>잠시 후 교사가 정리한 <b>발췌</b>로 넘어갑니다.'
+                 : '<br>아래 <b>원문 새 탭에서 열기</b>를 눌러 주세요.');
+    if(c.excerpt) setTimeout(function(){ if(!loaded) showExcerpt(c); }, 1800);
+  }, 4500);
+  $("#mClose").addEventListener("click", function(){ renderMedia(c); });
+  const bx = $("#toEx");
+  if(bx) bx.addEventListener("click", function(){ showExcerpt(c); });
+}
+
+function showExcerpt(c){
+  const text = (c.excerpt || "").trim();
+  const body = text
+    ? text.split(/\n+/).map(function(p){ return '<p>' + esc(p) + '</p>'; }).join("")
+    : '<p style="color:#6b7280">아직 발췌문이 등록되지 않았습니다. 아래 원문 링크로 읽어 주세요.</p>';
+  $("#mediaBox").innerHTML =
+    '<div class="reader"><div class="readernote">📄 기사 발췌 · 선생님이 정리한 내용입니다</div>' + body + '</div>' +
+    '<div class="linkbar">' +
+      '<button id="mClose">■ 닫기</button>' +
+      (c.url ? '<button id="toFrame">앱 안에서 원문 열어보기</button>' : '') +
+      (c.url ? '<a href="' + esc(c.url) + '" target="_blank" rel="noopener">원문 새 탭에서 열기</a>' : '') +
+    '</div>';
+  $("#mClose").addEventListener("click", function(){ renderMedia(c); });
+  const bf = $("#toFrame");
+  if(bf) bf.addEventListener("click", function(){ showArticleFrame(c); });
+}
+
 /* ===== 상세 모달 ===== */
 function openDetail(id){
   const c = CONTENTS.find(x => x.id === id);
@@ -536,9 +649,7 @@ function openDetail(id){
      '<button class="iconbtn" id="closeBtn">←</button>' +
      '<button class="iconbtn" id="starBtn">' + (log.scrapped ? "★" : "☆") + '</button>' +
    '</div><div class="sbody">' +
-     '<div class="hero" style="background:' + catGrad(c.category) + '">' +
-       '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' + (isV ? "🎬" : "📰") + '</div>' +
-     '<button class="openbtn" id="openLink">' + (isV ? "▶ 영상 보기" : "📄 기사 읽기") + '</button>' +
+     '<div class="mediabox" id="mediaBox"></div>' +
      '<div class="metarow"><span class="mtag">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' +
        '<span class="mcat" style="color:' + catColor(c.category) + '">' + esc(c.category) + '</span></div>' +
      '<h2 class="dtitle">' + esc(c.title) + '</h2>' +
@@ -559,10 +670,7 @@ function openDetail(id){
   $("#closeBtn").addEventListener("click", closeDetail);
   $("#back").addEventListener("click", function(e){ if(e.target.id === "back") closeDetail(); });
   $("#starBtn").addEventListener("click", function(){ toggleScrap(id); });
-  $("#openLink").addEventListener("click", function(){
-    if(link){ window.open(link, "_blank", "noopener"); }
-    else { toast("게시된 실제 링크로 연결됩니다 (콘텐츠 연동 예정)", 2600); }
-  });
+  renderMedia(c);
 
   const ta = $("#review"), sv = $("#rsave");
   function syncReview(){
@@ -652,8 +760,8 @@ function renderAdminList(){
 
   $("#abody").innerHTML =
     '<div class="note"><b>내 계정</b> <span class="uid">' + esc(ME.email) + '</span><br>' +
-      '영상은 유튜브 주소를 붙여넣으면 ID가 자동 추출됩니다. 기사는 원문 주소와 함께 ' +
-      '<b>발췌문</b>을 넣어 두면, 원문이 앱 안에서 열리지 않을 때 발췌가 대신 표시됩니다.</div>' +
+      '영상은 유튜브 주소를 붙여넣으면 앱 안에서 바로 재생됩니다. 기사는 주소를 넣고 ' +
+      '<b>열리는지 테스트</b>를 눌러 보세요. 막혀 있으면 <b>발췌문</b>을 채워 두면 학생이 앱 안에서 읽을 수 있습니다.</div>' +
     '<div class="adminbar">' +
       '<button class="pbtn" id="addBtn">+ 콘텐츠 추가</button>' +
       '<button class="pbtn ghost" id="seedBtn">기본 콘텐츠 15개 불러오기</button>' +
@@ -699,7 +807,7 @@ function qBlock(i, q){
 
 function renderAdminForm(c){
   const isNew = !c;
-  c = c || { category:"물리", type:"video", title:"", desc:"", youtubeId:"", url:"",
+  c = c || { category:"물리", type:"video", title:"", desc:"", youtubeId:"", url:"", readMode:"auto",
              excerpt:"", careers:[], quiz:[{q:"",options:["","","",""],answer:0},
                                           {q:"",options:["","","",""],answer:0}], order:99 };
   $("#abody").innerHTML =
@@ -720,7 +828,15 @@ function renderAdminForm(c){
       '<input type="text" id="fYt" placeholder="https://www.youtube.com/watch?v=..." value="' + esc(c.youtubeId||"") + '">' +
       '<div class="hint" id="ytHint"></div></div>' +
     '<div class="f" id="wrapUrl"><label>기사 원문 주소</label>' +
-      '<input type="url" id="fUrl" placeholder="https://..." value="' + esc(c.url||"") + '"></div>' +
+      '<input type="url" id="fUrl" placeholder="https://..." value="' + esc(c.url||"") + '">' +
+      '<div class="hint"><button class="mini" type="button" id="testEmbed">앱 안에서 열리는지 테스트</button>' +
+        ' 주소를 넣고 눌러 보세요. 아래에 기사가 보이면 앱 안에서 읽을 수 있습니다.</div>' +
+      '<div id="embedTest"></div></div>' +
+    '<div class="f" id="wrapMode"><label>학생에게 보여줄 방식</label>' +
+      '<select id="fMode">' +
+        '<option value="auto"' + ((c.readMode||"auto")==="auto"?" selected":"") + '>원문 먼저 시도 (막혀 있으면 발췌로 자동 전환)</option>' +
+        '<option value="excerpt"' + (c.readMode==="excerpt"?" selected":"") + '>발췌문만 보여주기 (테스트가 막혔다면 이쪽)</option>' +
+      '</select></div>' +
     '<div class="f" id="wrapEx"><label>기사 발췌 · 요약</label>' +
       '<textarea id="fEx" placeholder="원문이 앱 안에서 열리지 않을 때 학생에게 보여줄 내용을 넣어주세요.">' + esc(c.excerpt||"") + '</textarea>' +
       '<div class="hint">언론사 대부분은 외부 사이트 안에서 열리지 않도록 막아 둡니다. 이 칸을 채워두면 그런 경우에도 학생이 앱 안에서 읽을 수 있습니다.</div></div>' +
@@ -742,6 +858,7 @@ function renderAdminForm(c){
     $("#wrapYt").hidden  = v !== "video";
     $("#wrapUrl").hidden = v !== "article";
     $("#wrapEx").hidden  = v !== "article";
+    $("#wrapMode").hidden = v !== "article";
   }
   function syncYt(){
     const id = ytId($("#fYt").value);
@@ -751,6 +868,17 @@ function renderAdminForm(c){
   $("#fType").addEventListener("change", syncType);
   $("#fYt").addEventListener("input", syncYt);
   syncType(); syncYt();
+
+  $("#testEmbed").addEventListener("click", function(){
+    const u = $("#fUrl").value.trim();
+    if(!u){ $("#embedTest").innerHTML = '<div class="hint">먼저 기사 주소를 입력해 주세요.</div>'; return; }
+    $("#embedTest").innerHTML =
+      '<div class="framewrap tall" style="height:320px;min-height:0;margin-top:8px">' +
+        '<iframe src="' + esc(u) + '" referrerpolicy="no-referrer" ' +
+        'sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe></div>' +
+      '<div class="hint">기사 내용이 보이면 <b>원문 먼저 시도</b>로 두세요. 비어 있거나 ' +
+      '&ldquo;연결이 거부되었습니다&rdquo;가 뜨면 <b>발췌문만 보여주기</b>를 고르고 아래 발췌 칸을 채워 주세요.</div>';
+  });
 
   function bindQ(){
     $("#qList").querySelectorAll("[data-rmq]").forEach(function(b){
@@ -799,6 +927,7 @@ function renderAdminForm(c){
       youtubeId: type === "video" ? ytId($("#fYt").value) : "",
       url: type === "article" ? $("#fUrl").value.trim() : "",
       excerpt: type === "article" ? $("#fEx").value.trim() : "",
+      readMode: type === "article" ? $("#fMode").value : "auto",
       careers: $("#fCareer").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean),
       quiz: quiz,
       order: c.order || 99,
