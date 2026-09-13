@@ -73,7 +73,11 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;
   border:1px solid rgba(0,0,0,.04);transition:transform .12s}
 .card:hover{transform:translateY(-2px)}
-.thumb{aspect-ratio:16/10;position:relative;display:flex;align-items:center;justify-content:center;font-size:40px}
+.thumb{aspect-ratio:16/10;position:relative;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.thumb .pm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.thumb .pm i{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-style:normal;
+  font-size:16px;display:flex;align-items:center;justify-content:center}
 .badge{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.82);color:#fff;font-size:11px;
   font-weight:600;padding:4px 9px;border-radius:6px}
 .cbody{padding:12px 14px 14px}
@@ -110,7 +114,12 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .openbtn{width:100%;padding:13px;background:#f3f4f6;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:16px}
 .openbtn:hover{background:#e9ebef}
 .mediabox{margin-bottom:16px}
+.hero{overflow:hidden}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .hero.clickable{cursor:pointer}
+.notice{border:1px solid var(--line);background:#fffbeb;border-radius:10px;padding:13px 15px;
+  font-size:13px;color:#92400e;line-height:1.6;margin-bottom:16px}
+.ver{position:fixed;right:9px;bottom:7px;font-size:10px;color:#b6bcc6;z-index:5;letter-spacing:.02em}
 .playmark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 .playmark i{width:62px;height:62px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;
   display:flex;align-items:center;justify-content:center;font-size:24px;font-style:normal}
@@ -243,6 +252,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   </main>
 </div>
 
+<div class="ver">build 2.1</div>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
@@ -381,7 +391,9 @@ async function boot(){
     });
     CONTENTS = arr;
     renderGrid();
-    if(OPEN_ID) { const c = CONTENTS.find(x=>x.id===OPEN_ID); if(c) openDetail(OPEN_ID); }
+    if(OPEN_ID && !document.getElementById("mediaFrame")){
+      const c = CONTENTS.find(x=>x.id===OPEN_ID); if(c) openDetail(OPEN_ID);
+    }
   }, function(err){
     $("#grid").innerHTML = '<div class="empty">콘텐츠를 불러오지 못했습니다.<br>' + esc(err.code) + '</div>';
   });
@@ -453,10 +465,15 @@ function cardHTML(c){
            '<span class="dot" style="background:' + catColor(c.category) + '"></span>' + esc(t) + '</span>';
   }).join("");
   if(cs.length > 2) tags += '<span class="ctag more">+' + (cs.length-2) + '</span>';
+  const shot = (isV && c.youtubeId)
+    ? '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(c.youtubeId) + '/hqdefault.jpg" ' +
+      'alt="" loading="lazy" onerror="this.remove()">' +
+      '<span class="pm"><i>▶</i></span>'
+    : "";
   return '<article class="card" data-id="' + esc(c.id) + '">' +
     '<div class="thumb" style="background:' + catGrad(c.category) + '">' +
+      (shot ? "" : (isV ? "🎬" : "📰")) + shot +
       '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' +
-      (isV ? "🎬" : "📰") +
     '</div>' +
     '<div class="cbody">' +
       '<div class="crow">' +
@@ -526,35 +543,44 @@ function renderMedia(c){
   if(!box) return;
   const isV = c.type === "video";
   const hasSrc = isV ? !!c.youtubeId : !!(c.url || c.excerpt);
+  const shot = (isV && c.youtubeId)
+    ? '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(c.youtubeId) + '/hqdefault.jpg" ' +
+      'alt="" onerror="this.remove()">'
+    : "";
   box.innerHTML =
-    '<div class="hero clickable" id="heroBox" style="background:' + catGrad(c.category) + '">' +
-      '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' + (isV ? "🎬" : "📰") +
-      '<span class="playmark"><i>' + (isV ? "▶" : "📖") + '</i></span>' +
+    '<div class="hero' + (hasSrc ? " clickable" : "") + '" id="heroBox" style="background:' + catGrad(c.category) + '">' +
+      (shot ? "" : (isV ? "🎬" : "📰")) + shot +
+      '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' +
+      (hasSrc ? '<span class="playmark"><i>' + (isV ? "▶" : "📖") + '</i></span>' : "") +
     '</div>' +
-    '<button class="openbtn" id="openLink">' + (isV ? "▶ 영상 보기" : "📄 기사 읽기") + '</button>';
-  function start(){
-    if(!hasSrc){ toast("아직 링크가 연결되지 않았습니다 (교사 등록 예정)", 2600); return; }
-    if(isV) showVideo(c); else showArticle(c);
-  }
+    (hasSrc
+      ? '<button class="openbtn" id="openLink">' + (isV ? "▶ 영상 보기" : "📄 기사 읽기") + '</button>'
+      : '<div class="notice">아직 ' + (isV ? "영상 주소" : "기사 주소") + '가 등록되지 않았습니다.<br>' +
+        '교사 모드 → 이 콘텐츠 <b>수정</b>에서 주소를 넣어 주세요.</div>');
+  if(!hasSrc) return;
+  function start(){ if(isV) showVideo(c, false); else showArticle(c); }
   $("#openLink").addEventListener("click", start);
   $("#heroBox").addEventListener("click", start);
 }
 
-function showVideo(c){
-  const src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(c.youtubeId) +
+function showVideo(c, alt){
+  const host = alt ? "https://www.youtube.com" : "https://www.youtube-nocookie.com";
+  const src = host + "/embed/" + encodeURIComponent(c.youtubeId) +
               "?rel=0&modestbranding=1&playsinline=1&autoplay=1";
   $("#mediaBox").innerHTML =
     '<div class="framewrap">' +
-      '<iframe id="mediaFrame" src="' + src + '" title="영상" loading="lazy" ' +
+      '<iframe id="mediaFrame" src="' + src + '" title="영상" ' +
       'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
       'referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
     '</div>' +
     '<div class="linkbar">' +
       '<button id="mClose">■ 닫기</button>' +
+      '<button id="ytAlt">' + (alt ? "기본 방식으로 재생" : "화면이 검으면 → 다른 방식으로 재생") + '</button>' +
       '<a href="https://www.youtube.com/watch?v=' + encodeURIComponent(c.youtubeId) + '" target="_blank" rel="noopener">유튜브에서 열기</a>' +
-      '<span class="tipx">재생이 안 되면 업로더가 외부 재생을 막아 둔 영상입니다.</span>' +
+      '<span class="tipx">둘 다 안 되면 업로더가 외부 재생을 막아 둔 영상입니다.</span>' +
     '</div>';
   $("#mClose").addEventListener("click", function(){ renderMedia(c); });
+  $("#ytAlt").addEventListener("click", function(){ showVideo(c, !alt); });
 }
 
 function showArticle(c){
