@@ -253,11 +253,11 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .pastenote{font-size:11.5px;color:#9ca3af;margin-top:7px;line-height:1.5}
 
 /* ---------- 히어로 안내 ---------- */
-.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px}
+.guidebar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px}
 .htop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .htop .tx{flex:1;min-width:200px}
-.hero h2{font-size:18px;letter-spacing:-.5px;line-height:1.35}
-.hero .hsub{font-size:12.5px;color:var(--mut);margin-top:4px;line-height:1.5}
+.guidebar h2{font-size:18px;letter-spacing:-.5px;line-height:1.35}
+.guidebar .hsub{font-size:12.5px;color:var(--mut);margin-top:4px;line-height:1.5}
 .heroCta{background:var(--amber);color:#fff;border-radius:11px;padding:12px 20px;font-size:14.5px;font-weight:700;
   box-shadow:0 1px 0 rgba(0,0,0,.04);white-space:nowrap}
 .heroCta:hover{background:#c2660a}
@@ -266,13 +266,14 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .steps .n{width:20px;height:20px;border-radius:50%;background:var(--amber);color:#fff;font-size:11px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
-.steps .t{font-size:13px;font-weight:700;letter-spacing:-.2px}
-.steps .d{font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.5}
+.steps li>span:last-child{display:flex;flex-direction:column;min-width:0}
+.steps .t{display:block;font-size:13px;font-weight:700;letter-spacing:-.2px}
+.steps .d{display:block;font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.5}
 .herofoot{display:flex;justify-content:flex-end;margin-top:9px}
 .foldbtn{font-size:11.5px;color:var(--mut);border:1px solid var(--line);border-radius:7px;padding:5px 10px;background:#fff}
 .foldbtn:hover{background:#f9fafb}
-.hero.fold .steps,.hero.fold .hsub{display:none}
-.hero.fold{padding:12px 16px}
+.guidebar.fold .steps,.guidebar.fold .hsub{display:none}
+.guidebar.fold{padding:12px 16px}
 
 /* ---------- 첫 방문 안내 ---------- */
 .ob{position:fixed;inset:0;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;
@@ -288,8 +289,9 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   border-radius:11px;margin-bottom:8px}
 .oblist .n{width:22px;height:22px;border-radius:50%;background:var(--amber-bg);color:var(--amber);font-size:12px;
   font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
-.oblist .t{font-size:13.5px;font-weight:700}
-.oblist .d{font-size:12px;color:var(--mut);margin-top:3px;line-height:1.55}
+.oblist li>span:last-child{display:flex;flex-direction:column;min-width:0}
+.oblist .t{display:block;font-size:13.5px;font-weight:700}
+.oblist .d{display:block;font-size:12px;color:var(--mut);margin-top:3px;line-height:1.55}
 .obrew{background:var(--amber-bg);border:1px solid #fcd34d;border-radius:11px;padding:11px 12px;font-size:12.5px;
   color:#92400e;line-height:1.6;text-align:left}
 .obbtn{width:100%;background:var(--amber);color:#fff;border-radius:11px;padding:13px;font-size:15px;
@@ -347,7 +349,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
       <button class="tab" data-view="my">MY</button>
     </div>
     <div id="viewExplore">
-      <section class="hero" id="hero">
+      <section class="guidebar" id="hero">
         <div class="htop">
           <div class="tx">
             <h2>오늘은 어떤 과학을 만나볼까요?</h2>
@@ -370,7 +372,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   </main>
 </div>
 
-<div class="ver">build 3.1</div>
+<div class="ver">build 3.2</div>
 <div class="ob" id="ob" hidden>
   <div class="obbox">
     <div class="oic">🧭</div>
