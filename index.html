@@ -207,6 +207,50 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   font-size:12.5px;line-height:1.7;color:#92400e;margin-bottom:14px}
 .note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-size:11.5px}
 .uid{font-family:ui-monospace,monospace;font-size:11.5px;word-break:break-all}
+
+/* ===== 탭 ===== */
+.tabs{display:flex;gap:4px;margin:0 0 16px;border-bottom:1px solid var(--line)}
+.tab{padding:9px 20px;border:0;background:none;font-size:14px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}
+/* ===== 레벨 배지 ===== */
+.lv{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:12px;font-weight:800;margin-right:10px;white-space:nowrap}
+/* ===== MY ===== */
+.mywrap{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 17px}
+.ptitle{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:9px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fcfcfd}
+.stat b{display:block;font-size:22px;color:var(--ink);line-height:1.25;font-weight:800}
+.stat span{font-size:12px;color:var(--mut)}
+.lvrow{display:flex;align-items:baseline;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+.lvbig{font-size:20px;font-weight:800;color:#4338ca}
+.lvnote{font-size:12px;color:var(--mut)}
+.bar{height:9px;border-radius:99px;background:#eef0f8;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--amber-l)}
+.catrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.catrow .nm{width:62px;flex:none;font-weight:700;color:var(--ink)}
+.catrow .track{flex:1;height:11px;border-radius:99px;background:#f1f3f9;overflow:hidden}
+.catrow .track i{display:block;height:100%;border-radius:99px}
+.catrow .vv{width:32px;text-align:right;color:var(--mut);font-size:12px;font-weight:700}
+.topmsg{margin-top:10px;font-size:12.5px;color:var(--ink);background:var(--amber-bg);border:1px solid #fde68a;border-radius:9px;padding:9px 11px;line-height:1.5}
+.mychips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
+.mychip{padding:6px 13px;border:1px solid var(--line);border-radius:99px;background:#fff;font-size:12.5px;font-weight:700;color:var(--mut);cursor:pointer}
+.mychip.on{background:var(--amber);border-color:var(--amber);color:#fff}
+.logrow{border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-bottom:9px;cursor:pointer;background:#fff}
+.logrow:hover{border-color:var(--amber-l)}
+.lhead{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.ltag{font-size:11px;font-weight:800;padding:2px 7px;border-radius:5px;background:#f1f3f9;color:var(--mut)}
+.lcat{font-size:11.5px;font-weight:800}
+.ldate{margin-left:auto;font-size:11.5px;color:#9ca3af}
+.ltitle{font-size:14px;font-weight:700;color:var(--ink);line-height:1.45}
+.lrev{margin-top:8px;font-size:12.5px;color:#4b5563;background:#f8fafc;border-left:3px solid #d9dee8;padding:8px 11px;border-radius:0 8px 8px 0;line-height:1.6;white-space:pre-wrap}
+.lmeta{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--mut)}
+.lmeta span{background:#f1f3f9;padding:2px 8px;border-radius:5px;font-weight:700}
+.lmeta span.ok{background:#ecfdf5;color:#047857}
+.lmeta span.st{background:#fffbeb;color:#b45309}
+.nodata{text-align:center;color:var(--mut);font-size:13px;padding:28px 0;line-height:1.7}
+.pastenote{font-size:11.5px;color:#9ca3af;margin-top:7px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -236,6 +280,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
         <span class="sub">보고 · 풀고 · 방향 찾기</span>
       </div>
       <div class="gauge">
+        <span class="lv" id="lv" title="누적 에너지">Lv. 1</span>
         <span class="bolt">⚡</span>
         <span class="num" id="enum">0</span>
         <div class="slots" id="slots"></div>
@@ -246,13 +291,20 @@ main{max-width:1280px;margin:0 auto;padding:16px}
     </div>
   </header>
   <main>
-    <div class="filters" id="filters"></div>
-    <div class="count" id="count"></div>
-    <div class="grid" id="grid"></div>
+    <div class="tabs" id="tabs">
+      <button class="tab on" data-view="explore">탐색</button>
+      <button class="tab" data-view="my">MY</button>
+    </div>
+    <div id="viewExplore">
+      <div class="filters" id="filters"></div>
+      <div class="count" id="count"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div id="viewMy" hidden></div>
   </main>
 </div>
 
-<div class="ver">build 2.1</div>
+<div class="ver">build 3.0</div>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
@@ -299,6 +351,8 @@ let LOGS = {};           // contentId -> log
 let PROFILE = { energy:0, totalEnergy:0, snacks:0 };
 let FILTER = "전체";
 let OPEN_ID = null;
+let VIEW = "explore";    // explore | my
+let MYFILTER = "all";    // all | scrap | review | pass
 
 /* ===== 유틸 ===== */
 const $  = s => document.querySelector(s);
@@ -377,6 +431,7 @@ async function boot(){
   const ls = await getDocs(collection(db, "students", ME.uid, "logs"));
   ls.forEach(function(d){ LOGS[d.id] = d.data(); });
 
+  bindTabs();
   renderFilters();
   renderGauge();
 
@@ -391,6 +446,7 @@ async function boot(){
     });
     CONTENTS = arr;
     renderGrid();
+    if(VIEW === "my") renderMy();
     if(OPEN_ID && !document.getElementById("mediaFrame")){
       const c = CONTENTS.find(x=>x.id===OPEN_ID); if(c) openDetail(OPEN_ID);
     }
@@ -400,13 +456,209 @@ async function boot(){
 }
 
 /* ===== 헤더 게이지 ===== */
+/* 누적 에너지 -> 레벨 (필요량 3,4,5,6... 씩 증가) */
+function levelThreshold(lv){
+  let t = 0, step = 3;
+  for(let i=1;i<lv;i++){ t += step; step++; }
+  return t;
+}
+function levelInfo(total){
+  const n = Math.max(0, total|0);
+  let lv = 1;
+  while(levelThreshold(lv+1) <= n && lv < 99) lv++;
+  const cur = levelThreshold(lv), nxt = levelThreshold(lv+1);
+  return { lv:lv, total:n, cur:cur, nxt:nxt, need:nxt-n,
+           pct: Math.max(0, Math.min(100, Math.round((n-cur)/(nxt-cur)*100))) };
+}
+
 function renderGauge(){
+  const li = levelInfo(PROFILE.totalEnergy);
+  const lvEl = $("#lv");
+  if(lvEl){
+    lvEl.textContent = "Lv. " + li.lv;
+    lvEl.title = "누적 에너지 " + li.total + "개 · 다음 레벨까지 " + li.need + "개";
+  }
+  if(VIEW === "my") renderMy();
   $("#enum").textContent = PROFILE.energy;
   let s = "";
   for(let i=0;i<5;i++) s += '<div class="slot' + (i < PROFILE.energy ? " on" : "") + '"></div>';
   $("#slots").innerHTML = s;
   $("#left").textContent = PROFILE.energy >= 5 ? "교환 가능" : (5 - PROFILE.energy) + "개";
 }
+
+
+/* ================= 탭 / MY ================= */
+function setView(v){
+  VIEW = v;
+  document.querySelectorAll("#tabs .tab").forEach(function(b){
+    b.classList.toggle("on", b.dataset.view === v);
+  });
+  $("#viewExplore").hidden = (v !== "explore");
+  $("#viewMy").hidden      = (v !== "my");
+  if(v === "my") renderMy();
+}
+
+function bindTabs(){
+  document.querySelectorAll("#tabs .tab").forEach(function(b){
+    b.addEventListener("click", function(){ setView(b.dataset.view); });
+  });
+}
+
+function fmtDate(ts){
+  if(!ts) return "";
+  const d = new Date(ts);
+  return (d.getMonth()+1) + "." + String(d.getDate()).padStart(2,"0");
+}
+
+function renderMy(){
+  const host = $("#viewMy");
+  if(!host) return;
+
+  const logs = Object.keys(LOGS).map(function(id){ return Object.assign({ id:id }, LOGS[id]); });
+  const viewed   = logs.filter(function(l){ return !!l.viewedAt; });
+  const reviewed = logs.filter(function(l){ return (l.review||"").trim().length > 0; });
+  const passedL  = logs.filter(function(l){ return !!l.passed; });
+  const scrapped = logs.filter(function(l){ return !!l.scrapped; });
+  const li = levelInfo(PROFILE.totalEnergy);
+
+  /* 분야별 열람 수 */
+  const byCat = {};
+  CATLIST.forEach(function(c){ byCat[c] = 0; });
+  viewed.forEach(function(l){
+    const c = l.category;
+    if(byCat[c] === undefined) byCat[c] = 0;
+    byCat[c]++;
+  });
+  const keys = CATLIST.slice();
+  Object.keys(byCat).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
+  let mx = 1;
+  keys.forEach(function(k){ if(byCat[k] > mx) mx = byCat[k]; });
+  const ranked = keys.slice().sort(function(a,b){ return (byCat[b]||0) - (byCat[a]||0); });
+  const top = ranked[0];
+
+  /* --- 요약 --- */
+  let h = '<div class="mywrap">';
+
+  h += '<div class="panel">' +
+    '<div class="lvrow"><span class="lvbig">Lv. ' + li.lv + '</span>' +
+    '<span class="lvnote">누적 에너지 ' + li.total + '개 · 다음 레벨까지 ' + li.need + '개</span></div>' +
+    '<div class="bar"><i style="width:' + li.pct + '%"></i></div>' +
+    '<div class="stats" style="margin-top:14px">' +
+      '<div class="stat"><b>' + viewed.length + '</b><span>본 콘텐츠</span></div>' +
+      '<div class="stat"><b>' + reviewed.length + '</b><span>남긴 감상</span></div>' +
+      '<div class="stat"><b>' + passedL.length + '</b><span>퀴즈 통과</span></div>' +
+      '<div class="stat"><b>' + scrapped.length + '</b><span>스크랩</span></div>' +
+      '<div class="stat"><b>' + (PROFILE.snacks||0) + '</b><span>간식 교환</span></div>' +
+      '<div class="stat"><b>' + PROFILE.energy + ' / 5</b><span>현재 게이지</span></div>' +
+    '</div></div>';
+
+  /* --- 분야별 --- */
+  h += '<div class="panel"><div class="ptitle">분야별 기록</div>';
+  if(!viewed.length){
+    h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
+  } else {
+    keys.forEach(function(c){
+      const v = byCat[c] || 0;
+      h += '<div class="catrow"><span class="nm">' + esc(c) + '</span>' +
+        '<span class="track"><i style="width:' + Math.round(v/mx*100) + '%;background:' + catColor(c) + '"></i></span>' +
+        '<span class="vv">' + v + '</span></div>';
+    });
+    if(byCat[top] > 0){
+      h += '<div class="topmsg">지금까지 <b>' + esc(top) + '</b> 분야를 가장 많이 봤어요 (' + byCat[top] + '개). ' +
+           (ranked.filter(function(k){ return !byCat[k]; }).length
+             ? '아직 열어보지 않은 분야: ' + ranked.filter(function(k){ return !byCat[k]; }).map(esc).join(", ")
+             : '다섯 분야를 모두 경험했어요!') + '</div>';
+    }
+  }
+  h += '</div>';
+
+  /* --- 기록 목록 --- */
+  const tabs = [
+    { k:"all",    n:"전체 " + viewed.length },
+    { k:"scrap",  n:"⭐ 스크랩 " + scrapped.length },
+    { k:"review", n:"✍️ 내 감상 " + reviewed.length },
+    { k:"pass",   n:"✓ 퀴즈 통과 " + passedL.length }
+  ];
+  let list = viewed;
+  if(MYFILTER === "scrap")  list = scrapped;
+  if(MYFILTER === "review") list = reviewed;
+  if(MYFILTER === "pass")   list = passedL;
+  list = list.slice().sort(function(a,b){ return (b.updatedAt||b.viewedAt||0) - (a.updatedAt||a.viewedAt||0); });
+
+  h += '<div class="panel"><div class="ptitle">내 기록</div><div class="mychips">' +
+    tabs.map(function(t){
+      return '<button class="mychip' + (MYFILTER===t.k?" on":"") + '" data-my="' + t.k + '">' + t.n + '</button>';
+    }).join("") + '</div>';
+
+  if(!list.length){
+    h += '<div class="nodata">해당하는 기록이 아직 없어요.</div>';
+  } else {
+    h += list.map(function(l){
+      const alive = CONTENTS.some(function(c){ return c.id === l.id; });
+      let meta = "";
+      if(l.scrapped) meta += '<span class="st">⭐ 스크랩</span>';
+      if(l.quizTotal) meta += '<span class="' + (l.passed?"ok":"") + '">퀴즈 ' + (l.quizCorrect||0) + '/' + l.quizTotal + (l.passed?" 통과":"") + '</span>';
+      if(l.energyAwarded) meta += '<span class="ok">⚡ +1</span>';
+      if(!alive) meta += '<span>삭제된 콘텐츠</span>';
+      return '<div class="logrow" data-open="' + esc(l.id) + '">' +
+        '<div class="lhead">' +
+          '<span class="ltag">' + (l.type==="video" ? "▶ 영상" : "📄 기사") + '</span>' +
+          '<span class="lcat" style="color:' + catColor(l.category) + '">' + esc(l.category||"") + '</span>' +
+          '<span class="ldate">' + fmtDate(l.updatedAt||l.viewedAt) + '</span>' +
+        '</div>' +
+        '<div class="ltitle">' + esc(l.title||"(제목 없음)") + '</div>' +
+        ((l.review||"").trim() ? '<div class="lrev">' + esc(l.review) + '</div>' : "") +
+        (meta ? '<div class="lmeta">' + meta + '</div>' : "") +
+      '</div>';
+    }).join("");
+  }
+  h += '</div></div>';
+
+  host.innerHTML = h;
+
+  host.querySelectorAll("[data-my]").forEach(function(b){
+    b.addEventListener("click", function(){ MYFILTER = b.dataset.my; renderMy(); });
+  });
+  host.querySelectorAll("[data-open]").forEach(function(r){
+    r.addEventListener("click", function(){
+      const id = r.dataset.open;
+      if(CONTENTS.some(function(c){ return c.id === id; })) openDetail(id);
+      else toast("선생님이 삭제한 콘텐츠예요. 기록만 남아 있습니다.", 2200);
+    });
+  });
+}
+
+/* ================= 학생 모드 입력 보호 ================= */
+function blockMsg(kind){
+  if(kind === "paste") toast("붙여넣기는 사용할 수 없어요. 직접 작성해 주세요 ✍️", 2200);
+  else if(kind === "copy") toast("복사·잘라내기는 사용할 수 없어요", 1800);
+  else toast("학생 화면에서는 오른쪽 버튼을 사용할 수 없어요", 1800);
+}
+document.addEventListener("contextmenu", function(e){
+  if(IS_TEACHER) return;
+  e.preventDefault(); blockMsg("menu");
+}, true);
+["paste","drop"].forEach(function(ev){
+  document.addEventListener(ev, function(e){
+    if(IS_TEACHER) return;
+    e.preventDefault(); e.stopPropagation(); blockMsg("paste");
+  }, true);
+});
+["copy","cut"].forEach(function(ev){
+  document.addEventListener(ev, function(e){
+    if(IS_TEACHER) return;
+    e.preventDefault(); blockMsg("copy");
+  }, true);
+});
+document.addEventListener("dragstart", function(e){ if(!IS_TEACHER) e.preventDefault(); }, true);
+document.addEventListener("keydown", function(e){
+  if(IS_TEACHER) return;
+  const k = String(e.key || "").toLowerCase();
+  if((e.ctrlKey || e.metaKey) && (k === "v" || k === "c" || k === "x")){
+    e.preventDefault(); blockMsg(k === "v" ? "paste" : "copy"); return;
+  }
+  if(e.shiftKey && k === "insert"){ e.preventDefault(); blockMsg("paste"); }
+}, true);
 
 /* ===== 필터 ===== */
 function renderFilters(){
@@ -497,6 +749,7 @@ async function saveLog(id, patch){
     energyAwarded:false, viewedAt: base.viewedAt || Date.now()
   }, base, patch, { updatedAt: Date.now() });
   LOGS[id] = merged;
+  if(VIEW === "my") renderMy();
   try { await setDoc(doc(db, "students", ME.uid, "logs", id), merged, { merge:true }); }
   catch(e){ console.warn("log save failed", e); }
 }
@@ -684,12 +937,15 @@ function openDetail(id){
      '<div class="careers">' + careerHTML + '</div>' +
      '<div class="sect" style="margin-top:18px">한 줄 감상</div>' +
      '<div class="reviewbox">' +
-       '<textarea id="review" placeholder="보고 나서 든 생각을 한 줄 남겨보세요. (최소 15자)">' + esc(log.review||"") + '</textarea>' +
+       '<textarea id="review" autocomplete="off" autocorrect="off" spellcheck="false" ' +
+         'placeholder="보고 나서 든 생각을 한 줄 남겨보세요. (최소 15자)">' + esc(log.review||"") + '</textarea>' +
        '<div class="rfoot">' +
          '<span class="rcount"><b id="rn">' + (log.review||"").length + '</b> / 최소 15자</span>' +
          '<span class="rdone" id="rdone"' + (log.review ? '' : ' hidden') + '>✓ 감상 완료</span>' +
          '<button class="savebtn" id="rsave">' + (log.review ? "저장됨" : "감상 남기기") + '</button>' +
-       '</div></div>' +
+       '</div>' +
+       (IS_TEACHER ? '' : '<div class="pastenote">붙여넣기는 사용할 수 없습니다. 본 내용을 떠올리며 직접 작성해 주세요.</div>') +
+       '</div>' +
      quizHTML +
    '</div></div></div>';
 
