@@ -76,6 +76,8 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .thumb{aspect-ratio:16/10;position:relative;display:flex;align-items:center;justify-content:center;font-size:40px;overflow:hidden}
 .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .thumb .pm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.thumb .fav{width:60px;height:60px;border-radius:15px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.thumb .fav img{position:static;inset:auto;width:32px;height:32px;object-fit:contain}
 .thumb .pm i{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-style:normal;
   font-size:16px;display:flex;align-items:center;justify-content:center}
 .badge{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.82);color:#fff;font-size:11px;
@@ -385,7 +387,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   </main>
 </div>
 
-<div class="ver">build 3.4</div>
+<div class="ver">build 3.5</div>
 <div class="ob" id="ob" hidden>
   <div class="obbox">
     <div class="oic">🧭</div>
@@ -475,6 +477,11 @@ function ytId(v){
   if(/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
   const m = s.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : "";
+}
+
+// 기사 링크에서 도메인만 추출 (파비콘 자동 표시용)
+function hostOf(u){
+  try { return new URL(String(u).trim()).hostname; } catch(e){ return ""; }
 }
 
 /* ===== 로그인 ===== */
@@ -866,11 +873,17 @@ function cardHTML(c){
            '<span class="dot" style="background:' + catColor(c.category) + '"></span>' + esc(t) + '</span>';
   }).join("");
   if(cs.length > 2) tags += '<span class="ctag more">+' + (cs.length-2) + '</span>';
-  const shot = (isV && c.youtubeId)
-    ? '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(c.youtubeId) + '/hqdefault.jpg" ' +
-      'alt="" loading="lazy" onerror="this.remove()">' +
-      '<span class="pm"><i>▶</i></span>'
-    : "";
+  let shot = "";
+  if(isV && c.youtubeId){
+    shot = '<img src="https://i.ytimg.com/vi/' + encodeURIComponent(c.youtubeId) + '/hqdefault.jpg" ' +
+           'alt="" loading="lazy" onerror="this.remove()">' +
+           '<span class="pm"><i>▶</i></span>';
+  } else if(!isV && c.imageUrl){
+    shot = '<img src="' + esc(c.imageUrl) + '" alt="" loading="lazy" onerror="this.remove()">';
+  } else if(!isV && hostOf(c.url)){
+    shot = '<span class="fav"><img src="https://www.google.com/s2/favicons?sz=128&domain=' +
+           encodeURIComponent(hostOf(c.url)) + '" alt="" loading="lazy" onerror="this.parentNode.remove()"></span>';
+  }
   return '<article class="card" data-id="' + esc(c.id) + '">' +
     '<div class="thumb" style="background:' + catGrad(c.category) + '">' +
       (shot ? "" : (isV ? "🎬" : "📰")) + shot +
@@ -1276,6 +1289,9 @@ function renderAdminForm(c){
       '<div class="hint"><button class="mini" type="button" id="testEmbed">앱 안에서 열리는지 테스트</button>' +
         ' 주소를 넣고 눌러 보세요. 아래에 기사가 보이면 앱 안에서 읽을 수 있습니다.</div>' +
       '<div id="embedTest"></div></div>' +
+    '<div class="f" id="wrapImg"><label>대표 이미지 URL (선택)</label>' +
+      '<input type="url" id="fImg" placeholder="https://...jpg  (비워두면 사이트 아이콘 자동 표시)" value="' + esc(c.imageUrl||"") + '">' +
+      '<div class="hint">기사 카드에 크게 보일 이미지 주소예요. 비워두면 기사 사이트의 아이콘이 카드에 자동 표시됩니다.</div></div>' +
     '<div class="f" id="wrapMode"><label>학생에게 보여줄 방식</label>' +
       '<select id="fMode">' +
         '<option value="auto"' + ((c.readMode||"auto")==="auto"?" selected":"") + '>원문 먼저 시도 (막혀 있으면 발췌로 자동 전환)</option>' +
@@ -1301,6 +1317,7 @@ function renderAdminForm(c){
     const v = $("#fType").value;
     $("#wrapYt").hidden  = v !== "video";
     $("#wrapUrl").hidden = v !== "article";
+    $("#wrapImg").hidden = v !== "article";
     $("#wrapEx").hidden  = v !== "article";
     $("#wrapMode").hidden = v !== "article";
   }
@@ -1370,6 +1387,7 @@ function renderAdminForm(c){
       desc: $("#fDesc").value.trim(),
       youtubeId: type === "video" ? ytId($("#fYt").value) : "",
       url: type === "article" ? $("#fUrl").value.trim() : "",
+      imageUrl: type === "article" ? $("#fImg").value.trim() : "",
       excerpt: type === "article" ? $("#fEx").value.trim() : "",
       readMode: type === "article" ? $("#fMode").value : "auto",
       careers: $("#fCareer").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean),
