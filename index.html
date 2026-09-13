@@ -375,27 +375,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
       <div class="count" id="count"></div>
       <div class="grid" id="grid"></div>
     </div>
-    <div id="viewMy" hidden>
-  <div class="mywrap">
-    <div class="panel" id="mySummary">
-      <div class="ptitle">내 기록</div>
-      <div class="hint">기록을 불러오는 중이에요.</div>
-    </div>
-    <div class="panel" id="myListPanel">
-      <div class="ptitle">내 기록</div>
-      <div class="mychips">
-        <button class="mychip on" data-my="all">전체</button>
-        <button class="mychip" data-my="scrap">스크랩</button>
-        <button class="mychip" data-my="review">감상</button>
-      </div>
-      <div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 콘텐츠부터 열어보세요.</div>
-    </div>
-    <div class="panel" id="myCategoryPanel">
-      <div class="ptitle">분야별 기록</div>
-      <div class="nodata">기록을 불러오는 중이에요.</div>
-    </div>
-  </div>
-</div>
+    <div id="viewMy" hidden></div>
   </main>
 </div>
 
@@ -625,108 +605,116 @@ function renderMy(){
   const host = $("#viewMy");
   if(!host) return;
 
-  const logs = Object.keys(LOGS || {}).map(function(id){
-    return Object.assign({id:id}, LOGS[id] || {});
-  });
-  const viewed = logs.filter(function(l){ return !!l.viewedAt; });
-  const reviewed = logs.filter(function(l){ return String(l.review || "").trim().length > 0; });
+  const logs = Object.keys(LOGS).map(function(id){ return Object.assign({ id:id }, LOGS[id]); });
+  const viewed   = logs.filter(function(l){ return !!l.viewedAt; });
+  const reviewed = logs.filter(function(l){ return (l.review||"").trim().length > 0; });
+  const passedL  = logs.filter(function(l){ return !!l.passed; });
   const scrapped = logs.filter(function(l){ return !!l.scrapped; });
+  const li = levelInfo(PROFILE.totalEnergy);
 
-  const list = MYFILTER === "scrap" ? scrapped :
-               MYFILTER === "review" ? reviewed : logs;
-  const li = levelInfo((PROFILE && PROFILE.totalEnergy) || 0);
-
-  // 요약
-  const summary = $("#mySummary");
-  if(summary){
-    summary.innerHTML =
-      '<div class="ptitle">내 기록</div>' +
-      '<div class="lvrow"><span class="lvbig">Lv. ' + li.lv + '</span>' +
-      '<span class="lvnote">누적 에너지 ' + li.total + '개 · 다음 레벨까지 ' + li.need + '개</span></div>' +
-      '<div class="bar"><i style="width:' + li.pct + '%"></i></div>' +
-      '<div class="stats" style="margin-top:14px">' +
-        '<div class="stat"><b>' + viewed.length + '</b><span>본 콘텐츠</span></div>' +
-        '<div class="stat"><b>' + reviewed.length + '</b><span>남긴 감상</span></div>' +
-        '<div class="stat"><b>' + scrapped.length + '</b><span>스크랩</span></div>' +
-        '<div class="stat"><b>' + ((PROFILE && PROFILE.energy) || 0) + ' / 5</b><span>현재 게이지</span></div>' +
-      '</div>';
-  }
-
-  // 내 기록
-  const listPanel = $("#myListPanel");
-  if(listPanel){
-    let h = '<div class="ptitle">내 기록</div>' +
-      '<div class="mychips">' +
-      '<button class="mychip' + (MYFILTER === "all" ? " on" : "") + '" data-my="all">전체</button>' +
-      '<button class="mychip' + (MYFILTER === "scrap" ? " on" : "") + '" data-my="scrap">스크랩</button>' +
-      '<button class="mychip' + (MYFILTER === "review" ? " on" : "") + '" data-my="review">감상</button>' +
-      '</div>';
-
-    if(!list.length){
-      h += '<div class="nodata">' +
-        (MYFILTER === "scrap" ? '아직 스크랩한 콘텐츠가 없어요.' :
-         MYFILTER === "review" ? '아직 남긴 감상이 없어요.' :
-         '아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 콘텐츠부터 열어보세요.') +
-        '</div>';
-    } else {
-      h += list.map(function(l){
-        let meta = "";
-        if(l.scrapped) meta += '<span class="st">⭐ 스크랩</span>';
-        if(l.quizTotal) meta += '<span class="' + (l.passed ? 'ok' : '') + '">퀴즈 ' + (l.quizCorrect || 0) + '/' + l.quizTotal + (l.passed ? ' 통과' : '') + '</span>';
-        if(l.energyAwarded) meta += '<span class="ok">⚡ +1</span>';
-        return '<div class="logrow" data-open="' + esc(l.id) + '">' +
-          '<div class="lhead">' +
-            '<span class="ltag">' + (l.type === "video" ? "▶ 영상" : "📄 기사") + '</span>' +
-            '<span class="lcat" style="color:' + catColor(l.category) + '">' + esc(l.category || "") + '</span>' +
-            '<span class="ldate">' + fmtDate(l.updatedAt || l.viewedAt) + '</span>' +
-          '</div>' +
-          '<div class="ltitle">' + esc(l.title || "(제목 없음)") + '</div>' +
-          ((l.review || "").trim() ? '<div class="lrev">' + esc(l.review) + '</div>' : '') +
-          (meta ? '<div class="lmeta">' + meta + '</div>' : '') +
-        '</div>';
-      }).join("");
-    }
-    listPanel.innerHTML = h;
-  }
-
-  // 분야별 기록
-  const catPanel = $("#myCategoryPanel");
-  if(catPanel){
-    const byCat = {};
-    CATLIST.forEach(function(c){ byCat[c] = 0; });
-    viewed.forEach(function(l){
-      const c = l.category || "기타";
-      byCat[c] = (byCat[c] || 0) + 1;
-    });
-    const keys = CATLIST.slice();
-    Object.keys(byCat).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
-    let mx = 1;
-    keys.forEach(function(k){ mx = Math.max(mx, byCat[k] || 0); });
-
-    let h = '<div class="ptitle">분야별 기록</div>';
-    if(!viewed.length){
-      h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
-    } else {
-      keys.forEach(function(c){
-        const v = byCat[c] || 0;
-        h += '<div class="catrow"><span class="nm">' + esc(c) + '</span>' +
-          '<span class="track"><i style="width:' + Math.round(v / mx * 100) + '%;background:' + catColor(c) + '"></i></span>' +
-          '<span class="vv">' + v + '</span></div>';
-      });
-    }
-    catPanel.innerHTML = h;
-  }
-
-  // 필터와 기록 클릭
-  host.querySelectorAll("[data-my]").forEach(function(btn){
-    btn.onclick = function(){ MYFILTER = btn.dataset.my; renderMy(); };
+  /* 분야별 열람 수 */
+  const byCat = {};
+  CATLIST.forEach(function(c){ byCat[c] = 0; });
+  viewed.forEach(function(l){
+    const c = l.category;
+    if(byCat[c] === undefined) byCat[c] = 0;
+    byCat[c]++;
   });
-  host.querySelectorAll("[data-open]").forEach(function(row){
-    row.onclick = function(){
-      const id = row.dataset.open;
-      if(Array.isArray(CONTENTS) && CONTENTS.some(function(c){ return c.id === id; })) openDetail(id);
+  const keys = CATLIST.slice();
+  Object.keys(byCat).forEach(function(k){ if(keys.indexOf(k) < 0) keys.push(k); });
+  let mx = 1;
+  keys.forEach(function(k){ if(byCat[k] > mx) mx = byCat[k]; });
+  const ranked = keys.slice().sort(function(a,b){ return (byCat[b]||0) - (byCat[a]||0); });
+  const top = ranked[0];
+
+  /* --- 요약 --- */
+  let h = '<div class="mywrap">';
+
+  h += '<div class="panel">' +
+    '<div class="lvrow"><span class="lvbig">Lv. ' + li.lv + '</span>' +
+    '<span class="lvnote">누적 에너지 ' + li.total + '개 · 다음 레벨까지 ' + li.need + '개</span></div>' +
+    '<div class="bar"><i style="width:' + li.pct + '%"></i></div>' +
+    '<div class="stats" style="margin-top:14px">' +
+      '<div class="stat"><b>' + viewed.length + '</b><span>본 콘텐츠</span></div>' +
+      '<div class="stat"><b>' + reviewed.length + '</b><span>남긴 감상</span></div>' +
+      '<div class="stat"><b>' + passedL.length + '</b><span>퀴즈 통과</span></div>' +
+      '<div class="stat"><b>' + scrapped.length + '</b><span>스크랩</span></div>' +
+      '<div class="stat"><b>' + PROFILE.energy + ' / 5</b><span>현재 게이지</span></div>' +
+    '</div></div>';
+
+  /* --- 기록 목록 --- */
+  const tabs = [
+    { k:"scrap",  n:"⭐ 스크랩 " + scrapped.length },
+    { k:"review", n:"✍️ 내 감상 " + reviewed.length }
+  ];
+  let list = scrapped;
+  if(MYFILTER === "review") list = reviewed;
+  if(MYFILTER === "scrap") list = scrapped;
+  list = list.slice().sort(function(a,b){
+    return (b.updatedAt||b.viewedAt||0) - (a.updatedAt||a.viewedAt||0);
+  });
+
+  /* --- 내 기록 --- */
+  h += '<div class="panel"><div class="ptitle">내 기록</div><div class="mychips">' +
+    tabs.map(function(t){
+      return '<button class="mychip' + (MYFILTER===t.k?" on":"") + '" data-my="' + t.k + '">' + t.n + '</button>';
+    }).join("") + '</div>';
+
+  if(!list.length){
+    h += '<div class="nodata">해당하는 기록이 아직 없어요.</div>';
+  } else {
+    h += list.map(function(l){
+      const alive = CONTENTS.some(function(c){ return c.id === l.id; });
+      let meta = "";
+      if(l.scrapped) meta += '<span class="st">⭐ 스크랩</span>';
+      if(l.quizTotal) meta += '<span class="' + (l.passed?"ok":"") + '">퀴즈 ' + (l.quizCorrect||0) + '/' + l.quizTotal + (l.passed?" 통과":"") + '</span>';
+      if(l.energyAwarded) meta += '<span class="ok">⚡ +1</span>';
+      if(!alive) meta += '<span>삭제된 콘텐츠</span>';
+      return '<div class="logrow" data-open="' + esc(l.id) + '">' +
+        '<div class="lhead">' +
+          '<span class="ltag">' + (l.type==="video" ? "▶ 영상" : "📄 기사") + '</span>' +
+          '<span class="lcat" style="color:' + catColor(l.category) + '">' + esc(l.category||"") + '</span>' +
+          '<span class="ldate">' + fmtDate(l.updatedAt||l.viewedAt) + '</span>' +
+        '</div>' +
+        '<div class="ltitle">' + esc(l.title||"(제목 없음)") + '</div>' +
+        ((l.review||"").trim() ? '<div class="lrev">' + esc(l.review) + '</div>' : "") +
+        (meta ? '<div class="lmeta">' + meta + '</div>' : "") +
+      '</div>';
+    }).join("");
+  }
+  h += '</div></div>';
+
+  /* --- 분야별 --- */
+  h += '<div class="panel"><div class="ptitle">분야별 기록</div>';
+  if(!viewed.length){
+    h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
+  } else {
+    keys.forEach(function(c){
+      const v = byCat[c] || 0;
+      h += '<div class="catrow"><span class="nm">' + esc(c) + '</span>' +
+        '<span class="track"><i style="width:' + Math.round(v/mx*100) + '%;background:' + catColor(c) + '"></i></span>' +
+        '<span class="vv">' + v + '</span></div>';
+    });
+    if(byCat[top] > 0){
+      h += '<div class="topmsg">지금까지 <b>' + esc(top) + '</b> 분야를 가장 많이 봤어요 (' + byCat[top] + '개). ' +
+           (ranked.filter(function(k){ return !byCat[k]; }).length
+             ? '아직 열어보지 않은 분야: ' + ranked.filter(function(k){ return !byCat[k]; }).map(esc).join(", ")
+             : '다섯 분야를 모두 경험했어요!') + '</div>';
+    }
+  }
+  h += '</div>';
+
+  host.innerHTML = h;
+
+  host.querySelectorAll("[data-my]").forEach(function(b){
+    b.addEventListener("click", function(){ MYFILTER = b.dataset.my; renderMy(); });
+  });
+  host.querySelectorAll("[data-open]").forEach(function(r){
+    r.addEventListener("click", function(){
+      const id = r.dataset.open;
+      if(CONTENTS.some(function(c){ return c.id === id; })) openDetail(id);
       else toast("선생님이 삭제한 콘텐츠예요. 기록만 남아 있습니다.", 2200);
-    };
+    });
   });
 }
 
