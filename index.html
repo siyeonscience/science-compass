@@ -228,17 +228,11 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .lvnote{font-size:12px;color:var(--mut)}
 .bar{height:9px;border-radius:99px;background:#eef0f8;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--amber-l)}
-.catchart{height:190px;display:flex;align-items:flex-end;justify-content:space-around;gap:10px;padding:8px 4px 0;border-bottom:1px solid var(--line)}
-.catbar{height:100%;flex:1;max-width:92px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:48px}
-.catbar-value{font-size:12px;font-weight:800;color:var(--ink);height:20px;display:flex;align-items:center}
-.catbar-track{height:135px;width:min(44px,70%);background:#f1f3f9;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;overflow:hidden}
-.catbar-track i{display:block;width:100%;min-height:0;border-radius:8px 8px 0 0;transition:height .25s ease}
-.catbar-label{font-size:11.5px;font-weight:700;color:var(--ink);margin-top:7px;white-space:nowrap}
-@media(max-width:700px){
-  .catchart{height:175px;gap:5px}
-  .catbar-track{height:120px;width:32px}
-  .catbar-label{font-size:10.5px}
-}
+.catrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
+.catrow .nm{width:62px;flex:none;font-weight:700;color:var(--ink)}
+.catrow .track{flex:1;height:11px;border-radius:99px;background:#f1f3f9;overflow:hidden}
+.catrow .track i{display:block;height:100%;border-radius:99px}
+.catrow .vv{width:32px;text-align:right;color:var(--mut);font-size:12px;font-weight:700}
 .topmsg{margin-top:10px;font-size:12.5px;color:var(--ink);background:var(--amber-bg);border:1px solid #fde68a;border-radius:9px;padding:9px 11px;line-height:1.5}
 .mychips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
 .mychip{padding:6px 13px;border:1px solid var(--line);border-radius:99px;background:#fff;font-size:12.5px;font-weight:700;color:var(--mut);cursor:pointer}
@@ -305,6 +299,13 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .obbtn:hover{background:#c2660a}
 .obskip{font-size:12px;color:var(--mut);margin-top:10px;text-decoration:underline}
 .hbtn.help{border-color:var(--line)}
+.reactionbox{display:flex;flex-direction:column;gap:9px;margin-top:2px;padding:12px 14px;border:1px solid var(--line);border-radius:11px;background:#fafafa}
+.reaction{display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.5;cursor:pointer}
+.reaction input{position:absolute;opacity:0;pointer-events:none}
+.reaction .circle{font-size:19px;color:#9ca3af;line-height:1}
+.reaction input:checked + .circle{font-size:0;color:var(--amber)}
+.reaction input:checked + .circle::after{content:'●';font-size:12px}
+
 @media(max-width:700px){
   .heroCta{width:100%}
   .steps li{min-width:100%}
@@ -389,7 +390,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
       <li><span class="n">2</span><span><span class="t">영상 보기 · 기사 읽기</span><span class="d">앱을 벗어나지 않고 이 화면 안에서 바로 열립니다.</span></span></li>
       <li><span class="n">3</span><span><span class="t">한 줄 감상 쓰고 퀴즈 풀기</span><span class="d">감상 15자 이상 + 퀴즈 2문제. 붙여넣기 없이 직접 써야 해요.</span></span></li>
     </ol>
-    <div class="obrew">⚡ 하나를 끝낼 때마다 <b>에너지 1개</b>가 쌓이고, <b>5개를 모으면 간식</b>으로 바꿀 수 있어요.<br>기록과 레벨은 위쪽 <b>MY</b> 탭에서 언제든 확인할 수 있습니다.</div>
+    <div class="obrew">⚡ 하나를 끝낼 때마다 <b>에너지 1개</b>가 쌓여요.<br>기록과 레벨은 위쪽 <b>MY</b> 탭에서 언제든 확인할 수 있습니다.</div>
     <button class="obbtn" id="obStart">🎲 아무거나 하나 추천받기</button>
     <div><button class="obskip" id="obSkip">직접 골라볼게요</button></div>
   </div>
@@ -441,7 +442,7 @@ let PROFILE = { energy:0, totalEnergy:0, snacks:0 };
 let FILTER = "전체";
 let OPEN_ID = null;
 let VIEW = "explore";    // explore | my
-let MYFILTER = "scrap";  // scrap | review
+let MYFILTER = "all";    // all | scrap | review | pass
 
 /* ===== 유틸 ===== */
 const $  = s => document.querySelector(s);
@@ -634,48 +635,14 @@ function renderMy(){
     '<span class="lvnote">누적 에너지 ' + li.total + '개 · 다음 레벨까지 ' + li.need + '개</span></div>' +
     '<div class="bar"><i style="width:' + li.pct + '%"></i></div>' +
     '<div class="stats" style="margin-top:14px">' +
+      '<div class="stat"><b>' + viewed.length + '</b><span>본 콘텐츠</span></div>' +
       '<div class="stat"><b>' + reviewed.length + '</b><span>남긴 감상</span></div>' +
       '<div class="stat"><b>' + passedL.length + '</b><span>퀴즈 통과</span></div>' +
       '<div class="stat"><b>' + scrapped.length + '</b><span>스크랩</span></div>' +
-      '<div class="stat"><b>' + (PROFILE.snacks||0) + '</b><span>간식 교환</span></div>' +
       '<div class="stat"><b>' + PROFILE.energy + ' / 5</b><span>현재 게이지</span></div>' +
     '</div></div>';
 
-  /* --- 분야별 기록 --- */
-  h += '<div class="panel"><div class="ptitle">분야별 기록</div>';
-  if(!viewed.length){
-    h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
-  } else {
-    h += '<div class="catchart">';
-    keys.forEach(function(c){
-      const v = byCat[c] || 0;
-      const pct = Math.round(v / mx * 100);
-      h += '<div class="catbar">' +
-        '<div class="catbar-value">' + v + '</div>' +
-        '<div class="catbar-track"><i style="height:' + Math.max(v ? pct : 0, v ? 8 : 0) + '%;background:' + catColor(c) + '"></i></div>' +
-        '<div class="catbar-label">' + esc(c) + '</div>' +
-      '</div>';
-    });
-    h += '</div>';
-    if(byCat[top] > 0){
-      h += '<div class="topmsg">지금까지 <b>' + esc(top) + '</b> 분야를 가장 많이 봤어요 (' + byCat[top] + '개). ' +
-           (ranked.filter(function(k){ return !byCat[k]; }).length
-             ? '아직 열어보지 않은 분야: ' + ranked.filter(function(k){ return !byCat[k]; }).map(esc).join(", ")
-             : '다섯 분야를 모두 경험했어요!') + '</div>';
-    }
-  }
-  h += '</div>';
-
-  /* --- 기록 목록 --- */
-  const tabs = [
-    { k:"scrap",  n:"⭐ 스크랩 " + scrapped.length },
-    { k:"review", n:"✍️ 내 감상 " + reviewed.length }
-  ];
-  let list = scrapped;
-  if(MYFILTER === "review") list = reviewed;
-  if(MYFILTER === "scrap")  list = scrapped;
-  list = list.slice().sort(function(a,b){ return (b.updatedAt||b.viewedAt||0) - (a.updatedAt||a.viewedAt||0); });
-
+  /* --- 분야별 --- */
   h += '<div class="panel"><div class="ptitle">내 기록</div><div class="mychips">' +
     tabs.map(function(t){
       return '<button class="mychip' + (MYFILTER===t.k?" on":"") + '" data-my="' + t.k + '">' + t.n + '</button>';
@@ -704,6 +671,26 @@ function renderMy(){
     }).join("");
   }
   h += '</div></div>';
+
+  /* --- 분야별 --- */
+<div class="panel"><div class="ptitle">분야별 기록</div>';
+  if(!viewed.length){
+    h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
+  } else {
+    keys.forEach(function(c){
+      const v = byCat[c] || 0;
+      h += '<div class="catrow"><span class="nm">' + esc(c) + '</span>' +
+        '<span class="track"><i style="width:' + Math.round(v/mx*100) + '%;background:' + catColor(c) + '"></i></span>' +
+        '<span class="vv">' + v + '</span></div>';
+    });
+    if(byCat[top] > 0){
+      h += '<div class="topmsg">지금까지 <b>' + esc(top) + '</b> 분야를 가장 많이 봤어요 (' + byCat[top] + '개). ' +
+           (ranked.filter(function(k){ return !byCat[k]; }).length
+             ? '아직 열어보지 않은 분야: ' + ranked.filter(function(k){ return !byCat[k]; }).map(esc).join(", ")
+             : '다섯 분야를 모두 경험했어요!') + '</div>';
+    }
+  }
+  h += '</div>';
 
   host.innerHTML = h;
 
@@ -1085,6 +1072,13 @@ function openDetail(id){
        '</div>' +
        (IS_TEACHER ? '' : '<div class="pastenote">붙여넣기는 사용할 수 없습니다. 본 내용을 떠올리며 직접 작성해 주세요.</div>') +
        '</div>' +
+       '<div class="sect" style="margin-top:18px">이 콘텐츠를 보고 나는…</div>' +
+       '<div class="reactionbox" id="reactionBox">' +
+         ['이 분야가 더 궁금해졌다','관련 직업이 궁금해졌다','생각보다 재미있었다','이 분야와 관련된 일을 직접 해보고 싶다','나와는 조금 다른 것 같다','아직 잘 모르겠다'].map(function(t){
+           const checked = (log.reactions||[]).indexOf(t) >= 0;
+           return '<label class="reaction"><input type="checkbox" value="'+esc(t)+'" '+(checked?'checked':'')+'><span class="circle">○</span><span>'+esc(t)+'</span></label>';
+         }).join('') +
+       '</div>' +
      quizHTML +
    '</div></div></div>';
 
@@ -1103,6 +1097,12 @@ function openDetail(id){
   }
   ta.addEventListener("input", syncReview);
   syncReview();
+  document.querySelectorAll('#reactionBox input[type="checkbox"]').forEach(function(cb){
+    cb.addEventListener('change', async function(){
+      const reactions = Array.from(document.querySelectorAll('#reactionBox input[type="checkbox"]:checked')).map(function(x){ return x.value; });
+      await saveLog(id, { reactions: reactions });
+    });
+  });
   sv.addEventListener("click", async function(){
     const v = ta.value.trim();
     if(v.length < 15) return;
