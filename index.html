@@ -399,11 +399,11 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 <div id="toastRoot"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+  from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot, writeBatch }
-  from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+  from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 /* ===== Firebase ===== */
 const firebaseConfig = {
@@ -610,6 +610,16 @@ function renderMy(){
   const reviewed = logs.filter(function(l){ return (l.review||"").trim().length > 0; });
   const passedL  = logs.filter(function(l){ return !!l.passed; });
   const scrapped = logs.filter(function(l){ return !!l.scrapped; });
+
+  // MY 탭 필터: 전체 기록은 기본으로 보여주고, 스크랩/감상만 선택 필터로 제공
+  const tabs = [
+    { k:"scrap", n:"스크랩" },
+    { k:"review", n:"감상" }
+  ];
+  const list = MYFILTER === "scrap" ? scrapped
+             : MYFILTER === "review" ? reviewed
+             : logs;
+
   const li = levelInfo(PROFILE.totalEnergy);
 
   /* 분야별 열람 수 */
