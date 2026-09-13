@@ -52,6 +52,16 @@ header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0
 .hbtn:hover{background:#f9fafb}
 .hbtn.tch{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
 
+/* 모바일 헤더: 로고+버튼은 윗줄, 게이지는 아랫줄로 분리 */
+@media(max-width:700px){
+  .hwrap{flex-wrap:wrap;gap:8px 10px;padding:10px 12px}
+  .brand{order:1;flex:1 1 auto;min-width:0}
+  .brand h1{font-size:16px;overflow:hidden;text-overflow:ellipsis}
+  .brand .sub{display:none}
+  .hbtn{order:2;flex:none;padding:5px 9px;font-size:11.5px}
+  .gauge{order:3;flex:1 1 100%;justify-content:flex-start}
+}
+
 /* ---------- 필터 ---------- */
 main{max-width:1280px;margin:0 auto;padding:16px}
 .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
@@ -387,7 +397,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   </main>
 </div>
 
-<div class="ver">build 3.5</div>
+<div class="ver">build 3.6</div>
 <div class="ob" id="ob" hidden>
   <div class="obbox">
     <div class="oic">🧭</div>
