@@ -3,701 +3,917 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>과학 나침반 — 2단계 프로토타입</title>
+<title>과학 나침반</title>
 <style>
-  :root{
-    --bg:#f2f4fb;
-    --surface:#ffffff;
-    --fg:#1a1d29;
-    --mut:#6b7280;
-    --line:#e5e7ef;
-    --amber:#e0942a;
-    --amber-dark:#c87f1c;
-    --radius:14px;
-    --shadow:0 1px 2px rgba(17,24,39,.06), 0 6px 16px rgba(17,24,39,.05);
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --amber:#d97706; --amber-l:#f59e0b; --amber-bg:#fffbeb;
+  --ink:#1f2937; --mut:#6b7280; --line:#e5e7eb; --bg:#eef0f8; --card:#fff;
+  --phy:#2563eb; --che:#7c3aed; --bio:#059669; --ear:#0d9488; --eng:#ea580c;
+  --ok:#16a34a; --no:#dc2626;
+}
+body{font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;
+  background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+[hidden]{display:none !important}
 
-    --c-physics:#2563eb;
-    --c-chem:#7c3aed;
-    --c-bio:#16a34a;
-    --c-earth:#0d9488;
-    --c-tech:#ea580c;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    background:var(--bg); color:var(--fg); line-height:1.5;
-    -webkit-font-smoothing:antialiased;
-  }
-  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-  textarea{font:inherit}
+/* ---------- 로그인 ---------- */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.loginbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px 32px;max-width:400px;width:100%;text-align:center}
+.loginbox .logo{width:56px;height:56px;border-radius:14px;background:var(--amber);display:flex;align-items:center;
+  justify-content:center;font-size:28px;margin:0 auto 16px}
+.loginbox h1{font-size:22px;margin-bottom:6px}
+.loginbox p{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:24px}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;
+  border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:600;background:#fff}
+.gbtn:hover{background:#f9fafb}
+.gbtn svg{width:18px;height:18px}
+.loginnote{margin-top:16px;font-size:12px;color:var(--mut);line-height:1.6}
+.err{margin-top:14px;font-size:13px;color:var(--no);line-height:1.6}
 
-  /* ---------- header ---------- */
-  header{
-    background:var(--surface); border-bottom:1px solid var(--line);
-    position:sticky; top:0; z-index:30;
-  }
-  .hd-in{
-    max-width:1280px; margin:0 auto; padding:12px 24px;
-    display:flex; align-items:center; gap:12px;
-  }
-  .logo{
-    width:34px;height:34px;border-radius:10px;flex:none;
-    background:var(--amber); color:#fff; font-size:17px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .brand{display:flex; align-items:baseline; gap:6px; min-width:0}
-  .brand h1{font-size:20px; font-weight:800; letter-spacing:-.02em; white-space:nowrap}
-  .brand .sub{font-size:12px; color:var(--mut); white-space:nowrap}
-  .energy{margin-left:auto; display:flex; align-items:center; gap:10px}
-  .energy .bolt{font-size:15px}
-  .energy .num{font-size:14px; font-weight:700; color:var(--mut); min-width:12px}
-  .slots{display:flex; gap:4px}
-  .slot{width:20px;height:24px;border-radius:5px;background:#eceef4;transition:background .25s}
-  .slot.on{background:var(--amber)}
-  .goal{font-size:11px; color:var(--mut); text-align:right; line-height:1.25}
-  .goal b{display:block; font-size:12px; color:var(--fg)}
+/* ---------- 헤더 ---------- */
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.hwrap{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:baseline;gap:8px;flex:1;min-width:0}
+.brand .ic{width:32px;height:32px;border-radius:9px;background:var(--amber);display:flex;align-items:center;
+  justify-content:center;font-size:17px;align-self:center;flex:none}
+.brand h1{font-size:19px;letter-spacing:-.4px;white-space:nowrap}
+.brand .sub{font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gauge{display:flex;align-items:center;gap:8px;flex:none}
+.gauge .bolt{color:var(--amber-l);font-size:17px}
+.gauge .num{font-weight:700;font-size:14px;min-width:12px}
+.slots{display:flex;gap:4px}
+.slot{width:17px;height:24px;border-radius:4px;background:#f3f4f6;border:1px solid var(--line)}
+.slot.on{background:var(--amber-l);border-color:var(--amber)}
+.gtext{font-size:10px;color:var(--mut);line-height:1.3;text-align:right}
+.gtext b{display:block;font-size:12px;color:var(--amber)}
+.hbtn{padding:6px 11px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:600;background:#fff}
+.hbtn:hover{background:#f9fafb}
+.hbtn.tch{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
 
-  /* ---------- filter bar ---------- */
-  .filters{max-width:1280px; margin:0 auto; padding:20px 24px 4px}
-  .chips{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
-  .chip{
-    border:1px solid var(--line); background:var(--surface);
-    border-radius:10px; padding:9px 16px; font-size:14px; font-weight:600;
-    display:inline-flex; align-items:center; gap:7px; transition:.15s;
-  }
-  .chip:hover{border-color:#cdd2e0}
-  .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
-  .chip.all{color:var(--amber-dark); border-color:#f0d9b4}
-  .chip[aria-pressed="true"]{color:#fff; border-color:transparent}
-  .chip.all[aria-pressed="true"]{background:var(--amber); color:#fff}
-  .chip[data-cat="physics"][aria-pressed="true"]{background:var(--c-physics)}
-  .chip[data-cat="chem"][aria-pressed="true"]{background:var(--c-chem)}
-  .chip[data-cat="bio"][aria-pressed="true"]{background:var(--c-bio)}
-  .chip[data-cat="earth"][aria-pressed="true"]{background:var(--c-earth)}
-  .chip[data-cat="tech"][aria-pressed="true"]{background:var(--c-tech)}
-  .chip[aria-pressed="true"] .dot{background:#fff}
-  .btn-random{
-    background:var(--amber); color:#fff; border-radius:12px;
-    padding:12px 18px; font-size:15px; font-weight:700;
-    display:inline-flex; align-items:center; gap:8px;
-    box-shadow:0 2px 6px rgba(224,148,42,.35); margin-right:6px;
-  }
-  .btn-random:hover{background:var(--amber-dark)}
-  .count{max-width:1280px;margin:0 auto;padding:14px 24px 0;font-size:13px;color:var(--mut)}
+/* ---------- 필터 ---------- */
+main{max-width:1280px;margin:0 auto;padding:16px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.chip{padding:9px 15px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;
+  font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.chip:hover{border-color:#c7cbd3}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+.chip.on{color:#fff;border-color:transparent}
+.chip.on .dot{background:#fff !important}
+.chip.rand{background:var(--amber);color:#fff;border-color:transparent}
+.chip.sep{margin-left:6px}
+.count{font-size:12px;color:var(--mut);margin-bottom:12px}
 
-  /* ---------- grid ---------- */
-  .grid{
-    max-width:1280px; margin:0 auto; padding:16px 24px 48px;
-    display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(248px,1fr));
-  }
-  .card{
-    background:var(--surface); border-radius:var(--radius); overflow:hidden;
-    box-shadow:var(--shadow); display:flex; flex-direction:column;
-    cursor:pointer; transition:transform .15s, box-shadow .15s;
-  }
-  .card:hover{transform:translateY(-2px); box-shadow:0 4px 10px rgba(17,24,39,.08),0 12px 28px rgba(17,24,39,.08)}
-  .thumb{
-    aspect-ratio:16/10; position:relative;
-    display:flex; align-items:center; justify-content:center; font-size:38px;
-  }
-  .thumb.physics{background:linear-gradient(140deg,#1d4ed8,#3b82f6)}
-  .thumb.chem{background:linear-gradient(140deg,#6d28d9,#a855f7)}
-  .thumb.bio{background:linear-gradient(140deg,#15803d,#22c55e)}
-  .thumb.earth{background:linear-gradient(140deg,#0f766e,#14b8a6)}
-  .thumb.tech{background:linear-gradient(140deg,#c2410c,#f97316)}
-  .badge{
-    position:absolute; top:10px; left:10px;
-    background:rgba(17,20,32,.78); color:#fff;
-    font-size:11px; font-weight:700; padding:4px 9px; border-radius:6px;
-  }
-  .body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:8px; flex:1}
-  .body .top{display:flex; align-items:center; justify-content:space-between; gap:8px}
-  .cat{font-size:12px; font-weight:700}
-  .cat.physics{color:var(--c-physics)} .cat.chem{color:var(--c-chem)}
-  .cat.bio{color:var(--c-bio)} .cat.earth{color:var(--c-earth)} .cat.tech{color:var(--c-tech)}
-  .star{font-size:16px; color:#c3c8d6; line-height:1; padding:2px}
-  .star.on{color:var(--amber)}
-  .card h3{font-size:15.5px; font-weight:800; letter-spacing:-.01em; line-height:1.35}
-  .desc{
-    font-size:12.5px; color:var(--mut); display:-webkit-box;
-    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
-  }
-  .careers{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:6px}
-  .career{
-    font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:999px;
-    background:#f4f5fa; color:#4b5563; display:inline-flex; align-items:center; gap:5px;
-  }
-  .career .dot{width:5px;height:5px}
-  .career.more{color:var(--mut)}
-  .empty{grid-column:1/-1; text-align:center; color:var(--mut); font-size:14px; padding:56px 0}
+/* ---------- 카드 ---------- */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:540px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(0,0,0,.04);transition:transform .12s}
+.card:hover{transform:translateY(-2px)}
+.thumb{aspect-ratio:16/10;position:relative;display:flex;align-items:center;justify-content:center;font-size:40px}
+.badge{position:absolute;top:10px;left:10px;background:rgba(17,24,39,.82);color:#fff;font-size:11px;
+  font-weight:600;padding:4px 9px;border-radius:6px}
+.cbody{padding:12px 14px 14px}
+.crow{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ccat{font-size:12px;font-weight:700}
+.star{font-size:16px;color:#cbd5e1;line-height:1}
+.star.on{color:var(--amber-l)}
+.ctitle{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:7px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cdesc{font-size:12.5px;color:var(--mut);line-height:1.55;margin-bottom:11px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.careers{display:flex;flex-wrap:wrap;gap:6px}
+.ctag{font-size:11.5px;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.ctag .dot{width:5px;height:5px;border-radius:50%}
+.ctag.more{background:#f3f4f6;color:var(--mut)}
+.empty{text-align:center;padding:70px 20px;color:var(--mut);font-size:14px;line-height:1.8}
 
-  /* ---------- modal ---------- */
-  .overlay{
-    position:fixed; inset:0; background:rgba(15,18,30,.45);
-    display:none; align-items:center; justify-content:center; z-index:50; padding:24px;
-  }
-  .overlay.open{display:flex}
-  .modal{
-    background:var(--surface); width:min(660px,100%); max-height:92vh;
-    border-radius:16px; display:flex; flex-direction:column; overflow:hidden;
-    box-shadow:0 20px 50px rgba(15,18,30,.28);
-  }
-  .m-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 18px; border-bottom:1px solid var(--line); flex:none;
-  }
-  .icon-btn{
-    width:40px;height:40px;border-radius:10px;border:1px solid var(--line);
-    display:flex;align-items:center;justify-content:center;font-size:17px;
-  }
-  .icon-btn:hover{background:#f7f8fc}
-  .icon-btn.star.on{color:var(--amber)}
-  .m-body{overflow-y:auto; padding:18px}
-  .m-thumb{aspect-ratio:16/9; border-radius:12px; position:relative;
-    display:flex;align-items:center;justify-content:center;font-size:48px}
-  .open-link{
-    width:100%; margin-top:12px; background:#f4f5fa; border-radius:10px;
-    padding:13px; font-size:14.5px; font-weight:700; text-align:center;
-  }
-  .open-link:hover{background:#eceef6}
-  .m-tags{display:flex; align-items:center; gap:10px; margin-top:18px}
-  .tag{font-size:11.5px; font-weight:700; background:#f4f5fa; color:#4b5563; padding:4px 9px; border-radius:6px}
-  .m-body h2{font-size:22px; font-weight:800; letter-spacing:-.02em; margin-top:8px}
-  .m-desc{font-size:14px; color:#4b5563; margin-top:8px}
-  .sec-label{font-size:12.5px; font-weight:700; color:#5b6172; margin-top:20px}
-  .m-careers{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+/* ---------- 모달 ---------- */
+.back{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:50;display:flex;
+  align-items:center;justify-content:center;padding:24px}
+.sheet{background:#fff;border-radius:16px;width:100%;max-width:680px;max-height:calc(100vh - 48px);
+  display:flex;flex-direction:column;overflow:hidden}
+.sheet.wide{max-width:900px}
+.shead{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);flex:none}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line);border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:16px;background:#fff}
+.iconbtn:hover{background:#f9fafb}
+.sbody{overflow-y:auto;padding:18px}
+.shead h3{font-size:15px;font-weight:700}
+@media(max-width:640px){.back{padding:0}.sheet{max-width:none;border-radius:0;max-height:100vh;height:100vh}}
 
-  .review{background:#fafbff; border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:8px}
-  .review textarea{
-    width:100%; min-height:74px; resize:vertical; border:1px solid var(--line);
-    border-radius:9px; padding:11px 12px; font-size:13.5px; background:#fff; outline:none;
-  }
-  .review textarea:focus{border-color:#c9cfe2}
-  .review .row{display:flex; align-items:center; gap:12px; margin-top:12px}
-  .counter{font-size:12.5px; color:var(--mut)}
-  .counter b{color:var(--amber-dark)}
-  .done-mark{font-size:12.5px; font-weight:700; color:var(--c-chem)}
-  .btn-save{
-    margin-left:auto; background:var(--amber); color:#fff; font-weight:700;
-    font-size:13.5px; padding:10px 18px; border-radius:9px;
-  }
-  .btn-save:disabled{background:#e3e5ec; color:#9aa0ae; cursor:not-allowed}
+.hero{aspect-ratio:16/9;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:64px;position:relative;margin-bottom:12px}
+.openbtn{width:100%;padding:13px;background:#f3f4f6;border-radius:10px;font-size:14px;font-weight:700;margin-bottom:16px}
+.openbtn:hover{background:#e9ebef}
+.metarow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.mtag{font-size:11.5px;padding:4px 9px;border-radius:6px;background:#f3f4f6;font-weight:600}
+.mcat{font-size:12.5px;font-weight:700}
+.dtitle{font-size:21px;font-weight:800;line-height:1.35;margin-bottom:8px}
+.ddesc{font-size:13.5px;color:var(--mut);line-height:1.65;margin-bottom:18px}
+.sect{font-size:12px;font-weight:700;color:var(--amber);margin-bottom:9px}
+.divider{height:1px;background:var(--line);margin:18px 0}
 
-  .quiz{border-top:1px solid var(--line); margin-top:22px; padding-top:18px}
-  .quiz .q{font-size:15px; font-weight:800; margin:16px 0 10px}
-  .opt{
-    width:100%; text-align:left; display:flex; align-items:center; gap:12px;
-    border:1px solid var(--line); border-radius:10px; padding:12px 14px;
-    font-size:14px; font-weight:600; margin-bottom:10px; background:#fff; transition:.15s;
-  }
-  .opt:hover:not(:disabled){border-color:#c9cfe2; background:#fafbff}
-  .opt .mark{
-    width:19px;height:19px;border-radius:50%;border:1.5px solid #cfd4e2; flex:none;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;
-  }
-  .opt.correct{background:#effaf1; border-color:#7bcf94}
-  .opt.correct .mark{background:#22a95a; border-color:#22a95a}
-  .opt.wrong{background:#fdf0f0; border-color:#eda3a3}
-  .opt.wrong .mark{background:#dc5a5a; border-color:#dc5a5a}
-  .opt:disabled{cursor:default}
-  .result{
-    margin-top:6px; border-radius:10px; padding:14px; text-align:center;
-    font-size:14px; font-weight:800;
-  }
-  .result.pass{background:#effaf1; color:#1c7a45}
-  .result.fail{background:#fdf0f0; color:#b44141}
+.reviewbox{background:#f8f9fb;border:1px solid var(--line);border-radius:12px;padding:14px}
+.reviewbox textarea{width:100%;min-height:82px;border:1px solid var(--line);border-radius:9px;padding:11px;
+  font-size:13.5px;line-height:1.6;resize:vertical;background:#fff}
+.reviewbox textarea:focus{outline:2px solid var(--amber-l);outline-offset:-1px}
+.rfoot{display:flex;align-items:center;gap:10px;margin-top:11px}
+.rcount{font-size:12px;color:var(--mut)}
+.rcount b{color:var(--amber)}
+.rdone{font-size:12.5px;font-weight:700;color:var(--che);margin-left:auto}
+.savebtn{padding:10px 18px;background:var(--amber);color:#fff;border-radius:9px;font-size:13px;font-weight:700}
+.savebtn:disabled{background:#e5e7eb;color:#9ca3af;cursor:not-allowed}
+.rfoot .savebtn{margin-left:auto}
+.rfoot .rdone + .savebtn{margin-left:0}
 
-  /* ---------- toast ---------- */
-  .toast{
-    position:fixed; left:50%; bottom:28px; transform:translate(-50%,12px);
-    background:#1b1f2e; color:#fff; font-size:13.5px; font-weight:700;
-    padding:12px 20px; border-radius:10px; z-index:80;
-    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
-    box-shadow:0 8px 24px rgba(15,18,30,.3); max-width:90vw; text-align:center;
-  }
-  .toast.show{opacity:1; transform:translate(-50%,0)}
+.qtitle{font-size:14px;font-weight:700;margin:16px 0 9px}
+.opt{width:100%;display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--line);
+  border-radius:10px;margin-bottom:8px;font-size:13.5px;font-weight:600;text-align:left;background:#fff}
+.opt:hover{border-color:#c7cbd3}
+.opt .mark{width:21px;height:21px;border-radius:50%;border:2px solid var(--line);flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.opt.right{background:#f0fdf4;border-color:var(--ok)}
+.opt.right .mark{background:var(--ok);border-color:var(--ok)}
+.opt.wrong{background:#fef2f2;border-color:var(--no)}
+.opt.wrong .mark{background:var(--no);border-color:var(--no)}
+.result{text-align:center;padding:14px;border-radius:10px;font-size:13.5px;font-weight:700;margin-top:6px}
+.result.pass{background:#f0fdf4;color:var(--ok)}
+.result.fail{background:#fef2f2;color:var(--no)}
 
-  @media (max-width:640px){
-    .hd-in{padding:10px 14px; flex-wrap:wrap}
-    .brand .sub{display:none}
-    .filters,.count,.grid{padding-left:14px;padding-right:14px}
-    .goal{display:none}
-    .overlay{padding:0}
-    .modal{max-height:100vh; border-radius:0; height:100%}
-  }
+.toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%);background:#1f2937;color:#fff;
+  padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:90;white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+/* ---------- 교사 패널 ---------- */
+.adminbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.pbtn{padding:9px 15px;border-radius:9px;font-size:13px;font-weight:700;background:var(--amber);color:#fff}
+.pbtn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.pbtn.danger{background:#fff;border:1px solid #fecaca;color:var(--no)}
+.alist{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.arow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px}
+.arow:last-child{border-bottom:0}
+.arow .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.arow .c{font-size:11.5px;font-weight:700;flex:none}
+.arow .lk{font-size:11px;padding:3px 7px;border-radius:5px;flex:none}
+.lk.yes{background:#f0fdf4;color:var(--ok)}
+.lk.no{background:#fef2f2;color:var(--no)}
+.arow .mini{padding:5px 10px;border:1px solid var(--line);border-radius:7px;font-size:12px;background:#fff;flex:none}
+.f{margin-bottom:13px}
+.f label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.f .hint{font-size:11.5px;color:var(--mut);font-weight:400;line-height:1.5;margin-top:4px}
+.f input[type=text],.f input[type=url],.f textarea,.f select{width:100%;border:1px solid var(--line);
+  border-radius:9px;padding:10px;font-size:13.5px;background:#fff}
+.f textarea{min-height:80px;resize:vertical;line-height:1.6}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qbox{border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:11px;background:#f9fafb}
+.qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.qhead b{font-size:12.5px}
+.optrow{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.optrow input[type=radio]{width:17px;height:17px;flex:none;accent-color:var(--ok)}
+.optrow input[type=text]{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+.note{background:var(--amber-bg);border:1px solid #fde68a;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;line-height:1.7;color:#92400e;margin-bottom:14px}
+.note code{background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px;font-size:11.5px}
+.uid{font-family:ui-monospace,monospace;font-size:11.5px;word-break:break-all}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="hd-in">
-    <div class="logo">&#129517;</div>
-    <div class="brand">
-      <h1>과학 나침반</h1>
-      <span class="sub">보고 &middot; 풀고 &middot; 방향 찾기</span>
-    </div>
-    <div class="energy">
-      <span class="bolt">&#9889;</span>
-      <span class="num" id="energyNum">0</span>
-      <div class="slots" id="slots"></div>
-      <div class="goal"><span>간식까지</span><b id="goalLeft">5개</b></div>
-    </div>
-  </div>
-</header>
-
-<div class="filters">
-  <div class="chips">
-    <button class="btn-random" id="btnRandom">&#127922; 랜덤 추천</button>
-    <button class="chip all" data-cat="all" aria-pressed="true">전체</button>
-    <button class="chip" data-cat="physics" aria-pressed="false"><span class="dot" style="background:var(--c-physics)"></span>물리</button>
-    <button class="chip" data-cat="chem" aria-pressed="false"><span class="dot" style="background:var(--c-chem)"></span>화학</button>
-    <button class="chip" data-cat="bio" aria-pressed="false"><span class="dot" style="background:var(--c-bio)"></span>생명</button>
-    <button class="chip" data-cat="earth" aria-pressed="false"><span class="dot" style="background:var(--c-earth)"></span>지구&middot;우주</button>
-    <button class="chip" data-cat="tech" aria-pressed="false"><span class="dot" style="background:var(--c-tech)"></span>기술&middot;공학</button>
+<!-- ========== 로그인 ========== -->
+<div id="login">
+  <div class="loginbox">
+    <div class="logo">🧭</div>
+    <h1>과학 나침반</h1>
+    <p>보고 · 풀고 · 방향 찾기<br>학교 구글 계정으로 로그인해 주세요.</p>
+    <button class="gbtn" id="gbtn">
+      <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.6-.15-3.15-.42-4.65H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.6 5.9c4.44-4.1 7.22-10.14 7.22-17.45z"/><path fill="#FBBC05" d="M10.4 28.7c-.48-1.45-.76-2.99-.76-4.7s.28-3.25.76-4.7l-7.8-6.1C.92 16.46 0 20.12 0 24s.92 7.54 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.6-5.9c-2.12 1.43-4.85 2.27-8.3 2.27-6.3 0-11.7-3.7-13.6-9.8l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+      구글 계정으로 로그인
+    </button>
+    <div class="loginnote">학교 계정(<b>@sen.go.kr</b>)만 이용할 수 있습니다.</div>
+    <div class="err" id="loginerr" hidden></div>
   </div>
 </div>
 
-<div class="count" id="countLine"></div>
-<main class="grid" id="grid"></main>
-
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mTitle">
-  <div class="modal">
-    <div class="m-head">
-      <button class="icon-btn" id="btnBack" aria-label="닫기">&#8592;</button>
-      <button class="icon-btn star" id="mStar" aria-label="즐겨찾기">&#9734;</button>
+<!-- ========== 앱 ========== -->
+<div id="app" hidden>
+  <header>
+    <div class="hwrap">
+      <div class="brand">
+        <span class="ic">🧭</span>
+        <h1>과학 나침반</h1>
+        <span class="sub">보고 · 풀고 · 방향 찾기</span>
+      </div>
+      <div class="gauge">
+        <span class="bolt">⚡</span>
+        <span class="num" id="enum">0</span>
+        <div class="slots" id="slots"></div>
+        <div class="gtext">간식까지<b id="left">5개</b></div>
+      </div>
+      <button class="hbtn tch" id="adminbtn" hidden>교사 모드</button>
+      <button class="hbtn" id="outbtn">로그아웃</button>
     </div>
-    <div class="m-body" id="mBody"></div>
-  </div>
+  </header>
+  <main>
+    <div class="filters" id="filters"></div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+  </main>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
 
-<script>
-/* ===================== 데이터 ===================== */
-const CATS = {
-  physics:{label:'물리',   color:'var(--c-physics)'},
-  chem:   {label:'화학',   color:'var(--c-chem)'},
-  bio:    {label:'생명',   color:'var(--c-bio)'},
-  earth:  {label:'지구·우주', color:'var(--c-earth)'},
-  tech:   {label:'기술·공학', color:'var(--c-tech)'}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot, writeBatch }
+  from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+/* ===== Firebase ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCC90U8M-mXTPqNiP4Msi5oyTpB4F-G_rs",
+  authDomain: "science-compass-app.firebaseapp.com",
+  projectId: "science-compass-app",
+  storageBucket: "science-compass-app.firebasestorage.app",
+  messagingSenderId: "60584505992",
+  appId: "1:60584505992:web:02cd84c334b183a5a9653d"
 };
-const GOAL = 5; // 에너지 5개 = 간식 교환
+const ALLOW_DOMAIN = "sen.go.kr";
 
-const CONTENTS = [
-  { id:'p1', cat:'physics', type:'video',
-    title:'상온 초전도체는 왜 세상을 바꿀까?',
-    desc:'전기가 저항 없이 흐르면 어떤 일이 생길까? 자기부상열차부터 전력 손실 제로까지, 초전도의 가능성과 한계를 살펴본다.',
-    careers:['재료공학자','물리학 연구원','에너지 정책 연구원'],
-    quiz:[
-      {q:'초전도체의 가장 큰 특징은?', options:['전기 저항이 0이 된다','열을 많이 낸다','스스로 빛을 낸다','무게가 늘어난다'], answer:0},
-      {q:'초전도 기술이 쓰일 수 있는 분야는?', options:['자기부상열차와 송전','종이 제작','의류 염색','도자기 굽기'], answer:0}
-    ]},
-  { id:'p2', cat:'physics', type:'article',
-    title:'인류가 처음 찍은 블랙홀 사진의 비밀',
-    desc:'지구만 한 망원경이 없는데 어떻게 블랙홀을 촬영했을까? 전 세계 망원경을 하나로 묶은 관측 프로젝트의 이야기.',
-    careers:['천체물리학자','데이터 과학자'],
-    quiz:[
-      {q:'블랙홀 사진은 어떻게 찍었을까?', options:['전 세계 망원경을 하나처럼 연결해서','우주선을 직접 보내서','현미경으로 확대해서','스마트폰 카메라로'], answer:0},
-      {q:'이 관측에 반드시 필요했던 것은?', options:['방대한 데이터 처리 기술','심해 잠수정','인공 강우 장치','고성능 조명'], answer:0}
-    ]},
-  { id:'p3', cat:'physics', type:'video',
-    title:'롤러코스터 한 바퀴에 숨은 에너지 이야기',
-    desc:'첫 언덕만 높으면 나머지는 저절로 돈다? 위치·운동 에너지 전환으로 놀이기구의 설계 원리를 읽어본다.',
-    careers:['놀이기구 설계 엔지니어','기계공학자'],
-    quiz:[
-      {q:'첫 번째 언덕이 가장 높은 이유는?', options:['위치 에너지를 최대로 저장하려고','사진을 찍기 좋아서','바람을 막으려고','소리를 키우려고'], answer:0},
-      {q:'내려갈 때 위치 에너지는 무엇으로 바뀔까?', options:['운동 에너지','핵 에너지','화학 에너지','빛 에너지'], answer:0}
-    ]},
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-  { id:'c1', cat:'chem', type:'video',
-    title:'라면 스프에 숨어 있는 화학',
-    desc:'감칠맛의 정체는 무엇일까? 아미노산과 맛 분자의 세계, 그리고 "맛을 설계하는" 사람들의 일.',
-    careers:['식품공학자','향미 연구원'],
-    quiz:[
-      {q:'감칠맛을 내는 대표 성분은?', options:['글루탐산','탄산칼슘','염화은','포도당'], answer:0},
-      {q:'식품공학자가 하는 일에 가까운 것은?', options:['맛과 향을 분자 수준에서 설계한다','다리를 설계한다','별을 관측한다','지진을 예보한다'], answer:0}
-    ]},
-  { id:'c2', cat:'chem', type:'article',
-    title:'플라스틱을 먹어치우는 효소가 나타났다',
-    desc:'수백 년 썩지 않는 플라스틱을 몇 시간 만에 분해하는 효소를 과학자들이 개량하고 있다. 환경 문제를 화학으로 푸는 최전선.',
-    careers:['환경화학자','생명공학 연구원'],
-    quiz:[
-      {q:'기사에 나온 효소가 하는 일은?', options:['플라스틱을 분해한다','플라스틱을 새로 만든다','색을 입힌다','더 단단하게 만든다'], answer:0},
-      {q:'이 기술이 도움이 되는 문제는?', options:['환경 오염','교통 체증','수면 부족','통신 장애'], answer:0}
-    ]},
-  { id:'c3', cat:'chem', type:'video',
-    title:'불꽃놀이 색깔은 어떻게 만들까',
-    desc:'빨강·초록·파랑… 밤하늘의 색은 우연이 아니다. 금속마다 다른 불꽃 반응으로 색을 설계하는 법.',
-    careers:['화학 연구원','화공 엔지니어'],
-    quiz:[
-      {q:'불꽃의 색을 결정하는 것은?', options:['금속 원소의 종류','발사 각도','화약의 양','밤하늘의 온도'], answer:0},
-      {q:'빨간색 불꽃에 주로 쓰이는 원소는?', options:['스트론튬','나트륨','구리','바륨'], answer:0}
-    ]},
+/* ===== 분야 ===== */
+const CATS = {
+  "물리":     { key:"물리",     color:"#2563eb", g:["#1d4ed8","#3b82f6"] },
+  "화학":     { key:"화학",     color:"#7c3aed", g:["#6d28d9","#a855f7"] },
+  "생명":     { key:"생명",     color:"#059669", g:["#047857","#10b981"] },
+  "지구·우주":{ key:"지구·우주", color:"#0d9488", g:["#0f766e","#14b8a6"] },
+  "기술·공학":{ key:"기술·공학", color:"#ea580c", g:["#c2410c","#f97316"] }
+};
+const CATLIST = Object.keys(CATS);
+const catColor = c => (CATS[c] ? CATS[c].color : "#6b7280");
+const catGrad  = c => { const x = CATS[c] ? CATS[c].g : ["#6b7280","#9ca3af"];
+  return "linear-gradient(135deg," + x[0] + "," + x[1] + ")"; };
 
-  { id:'b1', cat:'bio', type:'video',
-    title:'내 몸속에 사는 100조 마리 미생물',
-    desc:'장 속 미생물이 기분과 면역까지 좌우한다고? 인간과 미생물의 공생 관계, 그리고 그 연구가 열어준 길.',
-    careers:['미생물학자','제약 연구원'],
-    quiz:[
-      {q:'장내 미생물이 영향을 준다고 알려진 것은?', options:['면역과 기분','시력','머리카락 색','키'], answer:0},
-      {q:'사람과 장내 미생물의 관계는?', options:['서로 도움을 주고받는 공생','일방적인 기생','완전히 무관함','경쟁만 하는 관계'], answer:0}
-    ]},
-  { id:'b2', cat:'bio', type:'article',
-    title:'mRNA 백신은 도대체 어떻게 작동할까',
-    desc:'몸에 설계도만 넣어 면역을 훈련시킨다는 발상. 코로나 백신으로 유명해진 mRNA 기술의 원리를 짚어본다.',
-    careers:['생명공학자','백신 개발 연구원'],
-    quiz:[
-      {q:'mRNA 백신이 몸에 넣는 것은?', options:['단백질 설계도','살아있는 바이러스 전체','항생제','백혈구'], answer:0},
-      {q:'백신의 목적에 가장 가까운 것은?', options:['면역 체계를 미리 훈련시키는 것','체온을 올리는 것','영양을 공급하는 것','세균을 직접 녹이는 것'], answer:0}
-    ]},
-  { id:'b3', cat:'bio', type:'video',
-    title:'멸종한 동물을 되살릴 수 있을까?',
-    desc:'매머드를 다시 볼 수 있을까? 유전자 편집으로 사라진 종을 복원하려는 시도와, 그 뒤에 남는 질문들.',
-    careers:['유전공학자','보전생물학자'],
-    quiz:[
-      {q:'복원 연구의 핵심이 되는 기술은?', options:['유전자 편집','화석 복제','냉동 보관만','인공 강우'], answer:0},
-      {q:'복원과 함께 고민해야 할 문제는?', options:['생태계 영향과 윤리','연료 가격','통신 속도','건축 양식'], answer:0}
-    ]},
+/* ===== 상태 ===== */
+let ME = null;           // {uid,email,name}
+let IS_TEACHER = false;
+let CONTENTS = [];
+let LOGS = {};           // contentId -> log
+let PROFILE = { energy:0, totalEnergy:0, snacks:0 };
+let FILTER = "전체";
+let OPEN_ID = null;
 
-  { id:'e1', cat:'earth', type:'video',
-    title:'누리호는 어떻게 우주로 갔나',
-    desc:'로켓은 무엇을 밀어내며 날아오를까? 우리 손으로 만든 발사체가 대기권을 뚫는 과정을 따라간다.',
-    careers:['항공우주공학자','발사체 엔지니어'],
-    quiz:[
-      {q:'로켓이 날아오르는 원리는?', options:['연소 가스를 뒤로 밀어낸 반작용','날개의 양력만으로','자기력으로 끌려서','풍선처럼 떠올라서'], answer:0},
-      {q:'발사체가 뚫고 나가야 하는 것은?', options:['대기권과 중력','해류','오존 구멍','전파 방해'], answer:0}
-    ]},
-  { id:'e2', cat:'earth', type:'article',
-    title:'기후 과학자들이 그리는 30년 뒤 지구',
-    desc:'데이터로 미래 날씨를 예측한다는 것. 기후 모델이 무엇을 말하고, 무엇은 아직 모르는지 정리했다.',
-    careers:['기후학자','대기과학 연구원'],
-    quiz:[
-      {q:'기후 모델이 근거로 삼는 것은?', options:['관측 데이터와 물리 법칙','여론조사','점성술','설문지'], answer:0},
-      {q:'기후 예측을 대하는 올바른 태도는?', options:['불확실성의 범위까지 함께 이해한다','100% 확정된 사실로 믿는다','완전히 무시한다','날짜까지 맞다고 본다'], answer:0}
-    ]},
-  { id:'e3', cat:'earth', type:'video',
-    title:'지진은 정말 예측할 수 없을까',
-    desc:'땅속에서 무슨 일이 일어나는가. 지진파를 읽어내는 방법과, "예측"과 "조기 경보"의 결정적 차이.',
-    careers:['지진학자','방재 엔지니어'],
-    quiz:[
-      {q:'지진 조기 경보가 이용하는 것은?', options:['먼저 도착하는 P파','구름 모양','달의 위치','기온 변화'], answer:0},
-      {q:'현재 과학으로 아직 어려운 일은?', options:['지진 발생 시각을 정확히 맞히는 것','지진파 관측','진도 기록','내진 설계'], answer:0}
-    ]},
-
-  { id:'t1', cat:'tech', type:'video',
-    title:'전기차 배터리 안에서 벌어지는 일',
-    desc:'충전과 방전은 결국 이온의 이동이다. 배터리 수명과 안전을 좌우하는 화학·전기의 만남을 들여다본다.',
-    careers:['배터리 연구원','전기공학자'],
-    quiz:[
-      {q:'충전과 방전 때 실제로 이동하는 것은?', options:['리튬 이온','중성자','공기','빛'], answer:0},
-      {q:'배터리 수명에 영향을 주는 것은?', options:['온도와 충·방전 습관','차체 색깔','타이어 종류','음악 볼륨'], answer:0}
-    ]},
-  { id:'t2', cat:'tech', type:'article',
-    title:'AI는 어떻게 사람 말을 알아들을까',
-    desc:'소리를 숫자로 바꾸고 패턴을 학습한다는 것. 매일 쓰는 음성 비서 뒤에 숨은 기술을 뜯어본다.',
-    careers:['AI 엔지니어','언어 데이터 연구원'],
-    quiz:[
-      {q:'AI가 말을 이해하기 위해 가장 먼저 하는 일은?', options:['소리를 숫자 데이터로 바꾼다','사전을 통째로 외운다','사람에게 직접 묻는다','글씨를 그린다'], answer:0},
-      {q:'학습에 반드시 필요한 것은?', options:['많은 양의 데이터','큰 화면','무거운 기계','조용한 방'], answer:0}
-    ]},
-  { id:'t3', cat:'tech', type:'video',
-    title:'다리는 왜 무너지지 않을까',
-    desc:'수천 톤을 버티는 구조의 비밀. 힘의 흐름을 읽어내는 토목·구조 공학의 눈을 빌려본다.',
-    careers:['토목공학자','구조 설계 엔지니어'],
-    quiz:[
-      {q:'다리 구조가 하는 핵심 역할은?', options:['힘을 여러 곳으로 나누어 견딘다','힘을 한 점에 모은다','무게를 없앤다','바람을 만든다'], answer:0},
-      {q:'구조 설계에서 중요한 개념은?', options:['안전율을 여유 있게 두는 것','색을 고르는 것','이름을 짓는 것','길이를 줄이는 것'], answer:0}
-    ]}
-];
-
-/* ===================== 상태 저장 ===================== */
-const KEY = 'science-compass-v2';
-const load = () => { try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } };
-let state = Object.assign({ stars:{}, reviews:{}, quiz:{}, rewarded:{} }, load());
-const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} };
-
-let currentCat = 'all';
-let current = null;
-
-/* ===================== 공통 ===================== */
-const $ = (s,r) => (r||document).querySelector(s);
-const typeLabel = t => t === 'video' ? '\u25B6 영상' : '\uD83D\uDCC4 기사';
-const typeEmoji = t => t === 'video' ? '\uD83C\uDFAC' : '\uD83D\uDCF0';
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ===== 유틸 ===== */
+const $  = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
 let toastTimer = null;
-function toast(msg){
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.add('show');
+function toast(msg, ms){
+  const root = $("#toastRoot");
+  root.innerHTML = '<div class="toast">' + esc(msg) + '</div>';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  toastTimer = setTimeout(function(){ root.innerHTML = ""; }, ms || 2200);
 }
 
-/* ===================== 에너지 ===================== */
-function energyCount(){ return Object.keys(state.rewarded).length; }
-function renderEnergy(){
-  const n = energyCount();
-  $('#energyNum').textContent = n;
-  $('#slots').innerHTML = Array.from({length:GOAL}, (_,i) =>
-    '<div class="slot' + (i < n % GOAL || (n >= GOAL && n % GOAL === 0) ? ' on' : '') + '"></div>').join('');
-  const left = (GOAL - (n % GOAL)) % GOAL;
-  $('#goalLeft').textContent = left === 0 && n > 0 ? '교환 가능' : (GOAL - (n % GOAL)) + '개';
+// 유튜브 URL/ID에서 11자리 ID 추출
+function ytId(v){
+  if(!v) return "";
+  const s = String(v).trim();
+  if(/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  const m = s.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : "";
 }
 
-/* ===================== 목록 ===================== */
-function visible(){ return currentCat === 'all' ? CONTENTS : CONTENTS.filter(c => c.cat === currentCat); }
+/* ===== 로그인 ===== */
+$("#gbtn").addEventListener("click", async function(){
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e){
+    showLoginError("로그인에 실패했습니다. (" + e.code + ")");
+  }
+});
+$("#outbtn").addEventListener("click", function(){ signOut(auth); location.reload(); });
+
+function showLoginError(msg){
+  const el = $("#loginerr"); el.textContent = msg; el.hidden = false;
+}
+
+onAuthStateChanged(auth, async function(user){
+  if(!user){ $("#login").hidden = false; $("#app").hidden = true; return; }
+  const email = (user.email || "").toLowerCase();
+  if(!email.endsWith("@" + ALLOW_DOMAIN) && !email.endsWith("." + ALLOW_DOMAIN)){
+    await signOut(auth);
+    showLoginError("학교 계정(@" + ALLOW_DOMAIN + ")으로만 이용할 수 있습니다.\n입력한 계정: " + email);
+    return;
+  }
+  ME = { uid:user.uid, email:email, name:user.displayName || email.split("@")[0] };
+  $("#login").hidden = true;
+  $("#app").hidden = false;
+  await boot();
+});
+
+/* ===== 부팅 ===== */
+async function boot(){
+  // 교사 여부
+  try {
+    const t = await getDoc(doc(db, "teachers", ME.email));
+    IS_TEACHER = t.exists();
+  } catch(e){ IS_TEACHER = false; }
+  $("#adminbtn").hidden = !IS_TEACHER;
+  $("#adminbtn").addEventListener("click", openAdmin);
+
+  // 학생 프로필
+  const pref = doc(db, "students", ME.uid);
+  const psnap = await getDoc(pref);
+  if(psnap.exists()){
+    const d = psnap.data();
+    PROFILE = { energy:d.energy||0, totalEnergy:d.totalEnergy||0, snacks:d.snacks||0 };
+  } else {
+    await setDoc(pref, { name:ME.name, email:ME.email, energy:0, totalEnergy:0, snacks:0,
+      createdAt:Date.now(), updatedAt:Date.now() });
+  }
+
+  // 기존 로그
+  const ls = await getDocs(collection(db, "students", ME.uid, "logs"));
+  ls.forEach(function(d){ LOGS[d.id] = d.data(); });
+
+  renderFilters();
+  renderGauge();
+
+  // 콘텐츠 실시간 구독
+  onSnapshot(collection(db, "contents"), function(snap){
+    const arr = [];
+    snap.forEach(function(d){ const o = d.data(); o.id = d.id; arr.push(o); });
+    arr.sort(function(a,b){
+      const ai = CATLIST.indexOf(a.category), bi = CATLIST.indexOf(b.category);
+      if(ai !== bi) return ai - bi;
+      return (a.order||0) - (b.order||0);
+    });
+    CONTENTS = arr;
+    renderGrid();
+    if(OPEN_ID) { const c = CONTENTS.find(x=>x.id===OPEN_ID); if(c) openDetail(OPEN_ID); }
+  }, function(err){
+    $("#grid").innerHTML = '<div class="empty">콘텐츠를 불러오지 못했습니다.<br>' + esc(err.code) + '</div>';
+  });
+}
+
+/* ===== 헤더 게이지 ===== */
+function renderGauge(){
+  $("#enum").textContent = PROFILE.energy;
+  let s = "";
+  for(let i=0;i<5;i++) s += '<div class="slot' + (i < PROFILE.energy ? " on" : "") + '"></div>';
+  $("#slots").innerHTML = s;
+  $("#left").textContent = PROFILE.energy >= 5 ? "교환 가능" : (5 - PROFILE.energy) + "개";
+}
+
+/* ===== 필터 ===== */
+function renderFilters(){
+  let h = '<button class="chip rand" data-rand="1">🎲 랜덤 추천</button>';
+  h += '<button class="chip sep' + (FILTER==="전체"?" on":"") + '" data-cat="전체"' +
+       (FILTER==="전체"?' style="background:var(--amber)"':'') + '>전체</button>';
+  CATLIST.forEach(function(c){
+    const on = FILTER === c;
+    h += '<button class="chip' + (on?" on":"") + '" data-cat="' + esc(c) + '"' +
+         (on ? ' style="background:' + catColor(c) + '"' : '') + '>' +
+         '<span class="dot" style="background:' + catColor(c) + '"></span>' + esc(c) + '</button>';
+  });
+  const f = $("#filters");
+  f.innerHTML = h;
+  f.querySelectorAll("[data-cat]").forEach(function(b){
+    b.addEventListener("click", function(){ FILTER = b.dataset.cat; renderFilters(); renderGrid(); });
+  });
+  f.querySelector("[data-rand]").addEventListener("click", function(){
+    if(!CONTENTS.length) return;
+    const c = CONTENTS[Math.floor(Math.random()*CONTENTS.length)];
+    openDetail(c.id);
+    toast("오늘의 추천 · " + c.category + " 분야");
+  });
+}
+
+/* ===== 카드 그리드 ===== */
+function visible(){ return FILTER === "전체" ? CONTENTS : CONTENTS.filter(c => c.category === FILTER); }
 
 function renderGrid(){
   const list = visible();
-  $('#countLine').textContent =
-    (currentCat === 'all' ? '전체' : CATS[currentCat].label) + ' · 콘텐츠 ' + list.length + '개';
-
-  if(!list.length){ $('#grid').innerHTML = '<p class="empty">표시할 콘텐츠가 없습니다.</p>'; return; }
-
-  $('#grid').innerHTML = list.map(c => {
-    const shown = c.careers.slice(0,2);
-    const more = c.careers.length - shown.length;
-    const chips = shown.map(n =>
-      '<span class="career"><span class="dot" style="background:' + CATS[c.cat].color + '"></span>' + esc(n) + '</span>'
-    ).join('') + (more > 0 ? '<span class="career more">+' + more + '</span>' : '');
-
-    return '' +
-      '<article class="card" data-id="' + c.id + '">' +
-        '<div class="thumb ' + c.cat + '">' +
-          '<span class="badge">' + typeLabel(c.type) + '</span>' + typeEmoji(c.type) +
-        '</div>' +
-        '<div class="body">' +
-          '<div class="top">' +
-            '<span class="cat ' + c.cat + '">' + CATS[c.cat].label + '</span>' +
-            '<button class="star' + (state.stars[c.id] ? ' on' : '') + '" data-star="' + c.id + '" aria-label="즐겨찾기">' +
-              (state.stars[c.id] ? '\u2605' : '\u2606') +
-            '</button>' +
-          '</div>' +
-          '<h3>' + esc(c.title) + '</h3>' +
-          '<p class="desc">' + esc(c.desc) + '</p>' +
-          '<div class="careers">' + chips + '</div>' +
-        '</div>' +
-      '</article>';
-  }).join('');
+  $("#count").textContent = FILTER + " · 콘텐츠 " + list.length + "개";
+  if(!CONTENTS.length){
+    $("#grid").innerHTML = '<div class="empty">등록된 콘텐츠가 없습니다.' +
+      (IS_TEACHER ? '<br>교사 모드에서 기본 콘텐츠를 불러오거나 새로 추가해 주세요.' : '<br>선생님이 콘텐츠를 준비 중입니다.') +
+      '</div>';
+    return;
+  }
+  $("#grid").innerHTML = list.map(cardHTML).join("");
+  $("#grid").querySelectorAll(".card").forEach(function(el){
+    el.addEventListener("click", function(e){
+      if(e.target.closest(".star")) return;
+      openDetail(el.dataset.id);
+    });
+  });
+  $("#grid").querySelectorAll(".star").forEach(function(el){
+    el.addEventListener("click", function(e){ e.stopPropagation(); toggleScrap(el.dataset.id); });
+  });
 }
 
-/* ===================== 상세 모달 ===================== */
-function openDetail(id){
-  current = CONTENTS.find(c => c.id === id);
-  if(!current) return;
-
-  const c = current;
-  const review = state.reviews[c.id] || '';
-  const saved = review.length >= 15;
-
-  $('#mStar').classList.toggle('on', !!state.stars[c.id]);
-  $('#mStar').innerHTML = state.stars[c.id] ? '\u2605' : '\u2606';
-
-  $('#mBody').innerHTML = '' +
-    '<div class="m-thumb ' + c.cat + '" style="background:' + thumbBg(c.cat) + '">' +
-      '<span class="badge">' + typeLabel(c.type) + '</span>' + typeEmoji(c.type) +
+function cardHTML(c){
+  const isV = c.type === "video";
+  const log = LOGS[c.id] || {};
+  const cs = (c.careers || []);
+  let tags = cs.slice(0,2).map(function(t){
+    return '<span class="ctag" style="background:' + catColor(c.category) + '14;color:' + catColor(c.category) + '">' +
+           '<span class="dot" style="background:' + catColor(c.category) + '"></span>' + esc(t) + '</span>';
+  }).join("");
+  if(cs.length > 2) tags += '<span class="ctag more">+' + (cs.length-2) + '</span>';
+  return '<article class="card" data-id="' + esc(c.id) + '">' +
+    '<div class="thumb" style="background:' + catGrad(c.category) + '">' +
+      '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' +
+      (isV ? "🎬" : "📰") +
     '</div>' +
-    '<button class="open-link" id="openLink">' + (c.type === 'video' ? '\u25B6 영상 보기' : '\uD83D\uDCC4 기사 읽기') + '</button>' +
-    '<div class="m-tags">' +
-      '<span class="tag">' + typeLabel(c.type) + '</span>' +
-      '<span class="cat ' + c.cat + '">' + CATS[c.cat].label + '</span>' +
-    '</div>' +
-    '<h2 id="mTitle">' + esc(c.title) + '</h2>' +
-    '<p class="m-desc">' + esc(c.desc) + '</p>' +
-    '<p class="sec-label">이 콘텐츠와 이어지는 진로</p>' +
-    '<div class="m-careers">' + c.careers.map(n =>
-        '<span class="career"><span class="dot" style="background:' + CATS[c.cat].color + '"></span>' + esc(n) + '</span>').join('') +
-    '</div>' +
-    '<p class="sec-label">한 줄 감상</p>' +
-    '<div class="review">' +
-      '<textarea id="reviewText" placeholder="보고 나서 든 생각을 한 줄 남겨보세요. (최소 15자)">' + esc(review) + '</textarea>' +
-      '<div class="row">' +
-        '<span class="counter"><b id="revLen">' + review.length + '</b> / 최소 15자</span>' +
-        '<span class="done-mark" id="revDone" style="display:' + (saved ? 'inline' : 'none') + '">\u2713 감상 완료</span>' +
-        '<button class="btn-save" id="btnSave">' + (saved ? '저장됨' : '감상 남기기') + '</button>' +
+    '<div class="cbody">' +
+      '<div class="crow">' +
+        '<span class="ccat" style="color:' + catColor(c.category) + '">' + esc(c.category) + '</span>' +
+        '<button class="star' + (log.scrapped ? " on" : "") + '" data-id="' + esc(c.id) + '">' +
+          (log.scrapped ? "★" : "☆") + '</button>' +
       '</div>' +
-    '</div>' +
-    '<div class="quiz">' +
-      '<p class="sec-label" style="margin-top:0">이해 퀴즈 · ' + c.quiz.length + '문제 (정답 60% 이상이면 통과)</p>' +
-      c.quiz.map((q,qi) =>
-        '<p class="q">' + (qi+1) + '. ' + esc(q.q) + '</p>' +
-        q.options.map((o,oi) =>
-          '<button class="opt" data-q="' + qi + '" data-o="' + oi + '"><span class="mark"></span>' + esc(o) + '</button>').join('')
-      ).join('') +
-      '<div class="result" id="quizResult" style="display:none"></div>' +
-    '</div>';
-
-  restoreQuiz();
-  syncReview();
-  $('#overlay').classList.add('open');
-  $('#mBody').scrollTop = 0;
-  document.body.style.overflow = 'hidden';
+      '<h3 class="ctitle">' + esc(c.title) + '</h3>' +
+      '<p class="cdesc">' + esc(c.desc) + '</p>' +
+      '<div class="careers">' + tags + '</div>' +
+    '</div></article>';
 }
 
-function thumbBg(cat){
-  const g = {
-    physics:'linear-gradient(140deg,#1d4ed8,#3b82f6)',
-    chem:'linear-gradient(140deg,#6d28d9,#a855f7)',
-    bio:'linear-gradient(140deg,#15803d,#22c55e)',
-    earth:'linear-gradient(140deg,#0f766e,#14b8a6)',
-    tech:'linear-gradient(140deg,#c2410c,#f97316)'
-  };
-  return g[cat];
+/* ===== 로그 저장 ===== */
+async function saveLog(id, patch){
+  const base = LOGS[id] || {};
+  const c = CONTENTS.find(x => x.id === id) || {};
+  const merged = Object.assign({
+    title: c.title || "", category: c.category || "", type: c.type || "",
+    scrapped:false, review:"", quizCorrect:0, quizTotal:0, passed:false,
+    energyAwarded:false, viewedAt: base.viewedAt || Date.now()
+  }, base, patch, { updatedAt: Date.now() });
+  LOGS[id] = merged;
+  try { await setDoc(doc(db, "students", ME.uid, "logs", id), merged, { merge:true }); }
+  catch(e){ console.warn("log save failed", e); }
 }
 
-function closeDetail(){
-  $('#overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  current = null;
+async function saveProfile(){
+  try {
+    await setDoc(doc(db, "students", ME.uid),
+      { name:ME.name, email:ME.email, energy:PROFILE.energy, totalEnergy:PROFILE.totalEnergy,
+        snacks:PROFILE.snacks, updatedAt:Date.now() }, { merge:true });
+  } catch(e){ console.warn("profile save failed", e); }
+}
+
+async function toggleScrap(id){
+  const cur = (LOGS[id] && LOGS[id].scrapped) || false;
+  await saveLog(id, { scrapped: !cur });
   renderGrid();
+  if(OPEN_ID === id) syncModalStar();
+  toast(!cur ? "스크랩했습니다" : "스크랩을 해제했습니다", 1400);
 }
 
-/* ---------- 감상 ---------- */
-function syncReview(){
-  const ta = $('#reviewText');
-  if(!ta) return;
-  const len = ta.value.trim().length;
-  $('#revLen').textContent = len;
-  const savedNow = (state.reviews[current.id] || '').length >= 15;
-  $('#btnSave').disabled = len < 15 || (savedNow && ta.value.trim() === state.reviews[current.id]);
-  $('#btnSave').textContent = savedNow && ta.value.trim() === state.reviews[current.id] ? '저장됨' : '감상 남기기';
-  $('#revDone').style.display = savedNow ? 'inline' : 'none';
+async function awardIfDone(id){
+  const log = LOGS[id] || {};
+  const reviewOK = (log.review || "").trim().length >= 15;
+  if(reviewOK && log.passed && !log.energyAwarded){
+    await saveLog(id, { energyAwarded:true, completedAt: Date.now() });
+    PROFILE.energy += 1;
+    PROFILE.totalEnergy += 1;
+    if(PROFILE.energy >= 5){
+      PROFILE.energy = 0;
+      PROFILE.snacks += 1;
+      await saveProfile(); renderGauge();
+      toast("🍪 간식 교환 가능! 에너지 5개를 모았어요", 3000);
+      return;
+    }
+    await saveProfile(); renderGauge();
+    toast("⚡ 에너지 +1 충전!", 2400);
+  }
 }
 
-function saveReview(){
-  const v = $('#reviewText').value.trim();
-  if(v.length < 15) return;
-  state.reviews[current.id] = v;
-  save();
-  syncReview();
-  if(!checkReward()) toast('감상 완료! 퀴즈까지 풀면 \u26A1 에너지를 받아요');
-}
-
-/* ---------- 퀴즈 ---------- */
-function restoreQuiz(){
-  const picked = state.quiz[current.id];
-  if(!picked) return;
-  picked.forEach((oi,qi) => { if(oi !== null && oi !== undefined) markQuestion(qi, oi); });
-  showQuizResult();
-}
-
-function markQuestion(qi, oi){
-  const ans = current.quiz[qi].answer;
-  document.querySelectorAll('.opt[data-q="' + qi + '"]').forEach(btn => {
-    const idx = Number(btn.dataset.o);
-    btn.disabled = true;
-    if(idx === ans){ btn.classList.add('correct'); $('.mark', btn).textContent = '\u2713'; }
-    else if(idx === oi){ btn.classList.add('wrong'); $('.mark', btn).textContent = '\u2715'; }
-  });
-}
-
-function pickOption(qi, oi){
-  const picked = state.quiz[current.id] || new Array(current.quiz.length).fill(null);
-  if(picked[qi] !== null && picked[qi] !== undefined) return;
-  picked[qi] = oi;
-  state.quiz[current.id] = picked;
-  save();
-  markQuestion(qi, oi);
-  showQuizResult();
-}
-
-function quizStatus(id){
+/* ===== 상세 모달 ===== */
+function openDetail(id){
   const c = CONTENTS.find(x => x.id === id);
-  const picked = state.quiz[id];
-  if(!picked || picked.some(v => v === null || v === undefined)) return null;
-  const correct = picked.filter((v,i) => v === c.quiz[i].answer).length;
-  return { correct:correct, total:c.quiz.length, pass:(correct / c.quiz.length) >= 0.6 };
-}
+  if(!c) return;
+  OPEN_ID = id;
+  const log = LOGS[id] || {};
+  if(!log.viewedAt) saveLog(id, { viewedAt: Date.now() });
 
-function showQuizResult(){
-  const st = quizStatus(current.id);
-  const box = $('#quizResult');
-  if(!st || !box) return;
-  box.style.display = 'block';
-  box.className = 'result ' + (st.pass ? 'pass' : 'fail');
-  box.textContent = st.pass
-    ? '\u2713 통과 · 정답 ' + st.correct + '/' + st.total
-    : '\u2715 아쉬워요 · 정답 ' + st.correct + '/' + st.total + ' · 내용을 다시 확인해 보세요';
-  checkReward();
-}
+  const isV = c.type === "video";
+  const link = isV ? ("https://www.youtube.com/watch?v=" + (c.youtubeId||"")) : (c.url || "");
+  const cs = (c.careers || []);
+  const careerHTML = cs.map(function(t){
+    return '<span class="ctag" style="background:' + catColor(c.category) + '14;color:' + catColor(c.category) + '">' +
+           '<span class="dot" style="background:' + catColor(c.category) + '"></span>' + esc(t) + '</span>';
+  }).join("");
 
-/* ---------- 보상 ---------- */
-function checkReward(){
-  const id = current.id;
-  if(state.rewarded[id]) return false;
-  const reviewed = (state.reviews[id] || '').length >= 15;
-  const st = quizStatus(id);
-  if(reviewed && st && st.pass){
-    state.rewarded[id] = true;
-    save();
-    renderEnergy();
-    const n = energyCount();
-    toast(n % GOAL === 0 ? '\u26A1 에너지 ' + GOAL + '개 달성! 간식 교환 가능' : '\u26A1 에너지 +1 충전!');
-    return true;
+  const quiz = c.quiz || [];
+  let quizHTML = "";
+  if(quiz.length){
+    quizHTML = '<div class="divider"></div><div class="sect">이해 퀴즈 · ' + quiz.length +
+      '문제 (정답 60% 이상이면 통과)</div><div id="quizWrap">' +
+      quiz.map(function(q, qi){
+        return '<div class="qtitle">' + (qi+1) + '. ' + esc(q.q) + '</div>' +
+          (q.options||[]).map(function(o, oi){
+            return '<button class="opt" data-q="' + qi + '" data-o="' + oi + '">' +
+                   '<span class="mark"></span>' + esc(o) + '</button>';
+          }).join("");
+      }).join("") +
+      '</div><div id="quizResult"></div>';
   }
-  return false;
-}
 
-/* ===================== 이벤트 ===================== */
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed','false'));
-    chip.setAttribute('aria-pressed','true');
-    currentCat = chip.dataset.cat;
-    renderGrid();
+  $("#modalRoot").innerHTML =
+   '<div class="back" id="back"><div class="sheet"><div class="shead">' +
+     '<button class="iconbtn" id="closeBtn">←</button>' +
+     '<button class="iconbtn" id="starBtn">' + (log.scrapped ? "★" : "☆") + '</button>' +
+   '</div><div class="sbody">' +
+     '<div class="hero" style="background:' + catGrad(c.category) + '">' +
+       '<span class="badge">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' + (isV ? "🎬" : "📰") + '</div>' +
+     '<button class="openbtn" id="openLink">' + (isV ? "▶ 영상 보기" : "📄 기사 읽기") + '</button>' +
+     '<div class="metarow"><span class="mtag">' + (isV ? "▶ 영상" : "📄 기사") + '</span>' +
+       '<span class="mcat" style="color:' + catColor(c.category) + '">' + esc(c.category) + '</span></div>' +
+     '<h2 class="dtitle">' + esc(c.title) + '</h2>' +
+     '<p class="ddesc">' + esc(c.desc) + '</p>' +
+     '<div class="sect">이 콘텐츠와 이어지는 진로</div>' +
+     '<div class="careers">' + careerHTML + '</div>' +
+     '<div class="sect" style="margin-top:18px">한 줄 감상</div>' +
+     '<div class="reviewbox">' +
+       '<textarea id="review" placeholder="보고 나서 든 생각을 한 줄 남겨보세요. (최소 15자)">' + esc(log.review||"") + '</textarea>' +
+       '<div class="rfoot">' +
+         '<span class="rcount"><b id="rn">' + (log.review||"").length + '</b> / 최소 15자</span>' +
+         '<span class="rdone" id="rdone"' + (log.review ? '' : ' hidden') + '>✓ 감상 완료</span>' +
+         '<button class="savebtn" id="rsave">' + (log.review ? "저장됨" : "감상 남기기") + '</button>' +
+       '</div></div>' +
+     quizHTML +
+   '</div></div></div>';
+
+  $("#closeBtn").addEventListener("click", closeDetail);
+  $("#back").addEventListener("click", function(e){ if(e.target.id === "back") closeDetail(); });
+  $("#starBtn").addEventListener("click", function(){ toggleScrap(id); });
+  $("#openLink").addEventListener("click", function(){
+    if(link){ window.open(link, "_blank", "noopener"); }
+    else { toast("게시된 실제 링크로 연결됩니다 (콘텐츠 연동 예정)", 2600); }
   });
-});
 
-$('#btnRandom').addEventListener('click', () => {
-  const c = CONTENTS[Math.floor(Math.random() * CONTENTS.length)];
-  toast('오늘의 추천 · ' + CATS[c.cat].label + ' 분야');
-  openDetail(c.id);
-});
-
-$('#grid').addEventListener('click', e => {
-  const starBtn = e.target.closest('[data-star]');
-  if(starBtn){
-    e.stopPropagation();
-    const id = starBtn.dataset.star;
-    state.stars[id] = !state.stars[id];
-    save();
-    starBtn.classList.toggle('on', state.stars[id]);
-    starBtn.innerHTML = state.stars[id] ? '\u2605' : '\u2606';
-    toast(state.stars[id] ? '즐겨찾기에 담았어요' : '즐겨찾기에서 뺐어요');
-    return;
+  const ta = $("#review"), sv = $("#rsave");
+  function syncReview(){
+    const n = ta.value.trim().length;
+    $("#rn").textContent = n;
+    sv.disabled = n < 15;
+    if(sv.textContent === "저장됨" && n !== (LOGS[id] && LOGS[id].review ? LOGS[id].review.length : 0))
+      sv.textContent = "감상 남기기";
   }
-  const card = e.target.closest('.card');
-  if(card) openDetail(card.dataset.id);
-});
+  ta.addEventListener("input", syncReview);
+  syncReview();
+  sv.addEventListener("click", async function(){
+    const v = ta.value.trim();
+    if(v.length < 15) return;
+    await saveLog(id, { review: v });
+    sv.textContent = "저장됨";
+    $("#rdone").hidden = false;
+    toast("감상 완료! 퀴즈까지 풀면 ⚡ 에너지를 받아요", 2600);
+    awardIfDone(id);
+  });
 
-$('#btnBack').addEventListener('click', closeDetail);
-$('#overlay').addEventListener('click', e => { if(e.target === $('#overlay')) closeDetail(); });
-document.addEventListener('keydown', e => { if(e.key === 'Escape' && current) closeDetail(); });
+  if(quiz.length) setupQuiz(id, c);
+}
 
-$('#mStar').addEventListener('click', () => {
-  if(!current) return;
-  state.stars[current.id] = !state.stars[current.id];
-  save();
-  $('#mStar').classList.toggle('on', state.stars[current.id]);
-  $('#mStar').innerHTML = state.stars[current.id] ? '\u2605' : '\u2606';
-});
+function syncModalStar(){
+  const b = document.getElementById("starBtn");
+  if(b && OPEN_ID) b.textContent = (LOGS[OPEN_ID] && LOGS[OPEN_ID].scrapped) ? "★" : "☆";
+}
 
-$('#mBody').addEventListener('click', e => {
-  if(e.target.closest('#openLink')){
-    toast('게시된 실제 링크로 연결됩니다 (콘텐츠 연동 예정)');
-    return;
+function closeDetail(){ OPEN_ID = null; $("#modalRoot").innerHTML = ""; }
+
+function setupQuiz(id, c){
+  const quiz = c.quiz || [];
+  const picked = {};
+  const wrap = $("#quizWrap");
+  if(!wrap) return;
+  wrap.querySelectorAll(".opt").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      const qi = Number(btn.dataset.q), oi = Number(btn.dataset.o);
+      if(picked[qi] !== undefined) return;
+      picked[qi] = oi;
+      const ans = quiz[qi].answer;
+      wrap.querySelectorAll('.opt[data-q="' + qi + '"]').forEach(function(b2){
+        const k = Number(b2.dataset.o);
+        if(k === ans){ b2.classList.add("right"); b2.querySelector(".mark").textContent = "✓"; }
+        else if(k === oi){ b2.classList.add("wrong"); b2.querySelector(".mark").textContent = "✕"; }
+      });
+      if(Object.keys(picked).length === quiz.length) finishQuiz();
+    });
+  });
+  async function finishQuiz(){
+    let correct = 0;
+    quiz.forEach(function(q, i){ if(picked[i] === q.answer) correct++; });
+    const pass = (correct / quiz.length) >= 0.6;
+    $("#quizResult").innerHTML = '<div class="result ' + (pass ? "pass" : "fail") + '">' +
+      (pass ? "✓ 통과 · 정답 " : "다시 도전 · 정답 ") + correct + "/" + quiz.length + '</div>';
+    await saveLog(id, { quizCorrect:correct, quizTotal:quiz.length, passed:pass });
+    awardIfDone(id);
   }
-  if(e.target.closest('#btnSave')){ saveReview(); return; }
-  const opt = e.target.closest('.opt');
-  if(opt && !opt.disabled) pickOption(Number(opt.dataset.q), Number(opt.dataset.o));
+}
+
+/* ================= 교사 모드 ================= */
+function openAdmin(){
+  $("#modalRoot").innerHTML =
+   '<div class="back" id="aback"><div class="sheet wide">' +
+     '<div class="shead"><h3>교사 모드 · 콘텐츠 관리</h3>' +
+       '<button class="iconbtn" id="aclose">✕</button></div>' +
+     '<div class="sbody" id="abody"></div>' +
+   '</div></div>';
+  $("#aclose").addEventListener("click", function(){ $("#modalRoot").innerHTML = ""; });
+  $("#aback").addEventListener("click", function(e){ if(e.target.id === "aback") $("#modalRoot").innerHTML = ""; });
+  renderAdminList();
+}
+
+function renderAdminList(){
+  let rows = CONTENTS.map(function(c){
+    const linked = c.type === "video" ? !!c.youtubeId : !!c.url;
+    return '<div class="arow">' +
+      '<span class="c" style="color:' + catColor(c.category) + '">' + esc(c.category) + '</span>' +
+      '<span class="t">' + (c.type==="video"?"▶ ":"📄 ") + esc(c.title) + '</span>' +
+      '<span class="lk ' + (linked?"yes":"no") + '">' + (linked ? "연결됨" : "미연결") + '</span>' +
+      '<button class="mini" data-edit="' + esc(c.id) + '">수정</button>' +
+      '<button class="mini" data-del="' + esc(c.id) + '">삭제</button>' +
+    '</div>';
+  }).join("");
+  if(!rows) rows = '<div class="arow" style="color:#6b7280">등록된 콘텐츠가 없습니다.</div>';
+
+  $("#abody").innerHTML =
+    '<div class="note"><b>내 계정</b> <span class="uid">' + esc(ME.email) + '</span><br>' +
+      '영상은 유튜브 주소를 붙여넣으면 ID가 자동 추출됩니다. 기사는 원문 주소와 함께 ' +
+      '<b>발췌문</b>을 넣어 두면, 원문이 앱 안에서 열리지 않을 때 발췌가 대신 표시됩니다.</div>' +
+    '<div class="adminbar">' +
+      '<button class="pbtn" id="addBtn">+ 콘텐츠 추가</button>' +
+      '<button class="pbtn ghost" id="seedBtn">기본 콘텐츠 15개 불러오기</button>' +
+    '</div>' +
+    '<div class="alist">' + rows + '</div>';
+
+  $("#addBtn").addEventListener("click", function(){ renderAdminForm(null); });
+  $("#seedBtn").addEventListener("click", seedContents);
+  $("#abody").querySelectorAll("[data-edit]").forEach(function(b){
+    b.addEventListener("click", function(){
+      renderAdminForm(CONTENTS.find(x => x.id === b.dataset.edit));
+    });
+  });
+  $("#abody").querySelectorAll("[data-del]").forEach(function(b){
+    b.addEventListener("click", async function(){
+      const c = CONTENTS.find(x => x.id === b.dataset.del);
+      if(!c) return;
+      if(!confirm('"' + c.title + '" 콘텐츠를 삭제할까요?')) return;
+      await deleteDoc(doc(db, "contents", c.id));
+      toast("삭제했습니다", 1600);
+      setTimeout(renderAdminList, 300);
+    });
+  });
+}
+
+function qBlock(i, q){
+  const opts = (q && q.options) ? q.options : ["","","",""];
+  const ans  = (q && typeof q.answer === "number") ? q.answer : 0;
+  let h = '<div class="qbox" data-qi="' + i + '">' +
+    '<div class="qhead"><b>문제 ' + (i+1) + '</b>' +
+      '<button class="mini" data-rmq="' + i + '">삭제</button></div>' +
+    '<div class="f"><input type="text" class="q-text" placeholder="질문을 입력하세요" value="' +
+      esc(q ? q.q : "") + '"></div>';
+  for(let k=0;k<4;k++){
+    h += '<div class="optrow">' +
+      '<input type="radio" name="ans' + i + '" value="' + k + '"' + (ans===k?" checked":"") + '>' +
+      '<input type="text" class="q-opt" placeholder="보기 ' + (k+1) + '" value="' + esc(opts[k]||"") + '">' +
+    '</div>';
+  }
+  h += '<div class="hint" style="font-size:11.5px;color:#6b7280">왼쪽 동그라미를 선택한 보기가 정답입니다.</div></div>';
+  return h;
+}
+
+function renderAdminForm(c){
+  const isNew = !c;
+  c = c || { category:"물리", type:"video", title:"", desc:"", youtubeId:"", url:"",
+             excerpt:"", careers:[], quiz:[{q:"",options:["","","",""],answer:0},
+                                          {q:"",options:["","","",""],answer:0}], order:99 };
+  $("#abody").innerHTML =
+    '<div class="adminbar"><button class="pbtn ghost" id="backList">← 목록</button>' +
+      '<b style="font-size:14px">' + (isNew ? "콘텐츠 추가" : "콘텐츠 수정") + '</b></div>' +
+    '<div class="f2">' +
+      '<div class="f"><label>분야</label><select id="fCat">' +
+        CATLIST.map(function(k){ return '<option' + (c.category===k?" selected":"") + '>' + esc(k) + '</option>'; }).join("") +
+      '</select></div>' +
+      '<div class="f"><label>유형</label><select id="fType">' +
+        '<option value="video"' + (c.type==="video"?" selected":"") + '>▶ 영상 (유튜브)</option>' +
+        '<option value="article"' + (c.type==="article"?" selected":"") + '>📄 기사</option>' +
+      '</select></div>' +
+    '</div>' +
+    '<div class="f"><label>제목</label><input type="text" id="fTitle" value="' + esc(c.title) + '"></div>' +
+    '<div class="f"><label>한 줄 설명</label><textarea id="fDesc" style="min-height:60px">' + esc(c.desc) + '</textarea></div>' +
+    '<div class="f" id="wrapYt"><label>유튜브 주소 또는 영상 ID</label>' +
+      '<input type="text" id="fYt" placeholder="https://www.youtube.com/watch?v=..." value="' + esc(c.youtubeId||"") + '">' +
+      '<div class="hint" id="ytHint"></div></div>' +
+    '<div class="f" id="wrapUrl"><label>기사 원문 주소</label>' +
+      '<input type="url" id="fUrl" placeholder="https://..." value="' + esc(c.url||"") + '"></div>' +
+    '<div class="f" id="wrapEx"><label>기사 발췌 · 요약</label>' +
+      '<textarea id="fEx" placeholder="원문이 앱 안에서 열리지 않을 때 학생에게 보여줄 내용을 넣어주세요.">' + esc(c.excerpt||"") + '</textarea>' +
+      '<div class="hint">언론사 대부분은 외부 사이트 안에서 열리지 않도록 막아 둡니다. 이 칸을 채워두면 그런 경우에도 학생이 앱 안에서 읽을 수 있습니다.</div></div>' +
+    '<div class="f"><label>이어지는 진로 (쉼표로 구분)</label>' +
+      '<input type="text" id="fCareer" value="' + esc((c.careers||[]).join(", ")) + '"></div>' +
+    '<div class="divider"></div>' +
+    '<div class="f"><label>이해 퀴즈</label><div id="qList">' +
+      (c.quiz||[]).map(function(q,i){ return qBlock(i,q); }).join("") + '</div>' +
+      '<button class="pbtn ghost" id="addQ" style="margin-top:4px">+ 문제 추가</button></div>' +
+    '<div class="divider"></div>' +
+    '<div class="adminbar"><button class="pbtn" id="saveC">저장</button>' +
+      '<button class="pbtn ghost" id="cancelC">취소</button>' +
+      '<span class="hint" id="saveMsg"></span></div>';
+
+  const editingId = isNew ? null : c.id;
+
+  function syncType(){
+    const v = $("#fType").value;
+    $("#wrapYt").hidden  = v !== "video";
+    $("#wrapUrl").hidden = v !== "article";
+    $("#wrapEx").hidden  = v !== "article";
+  }
+  function syncYt(){
+    const id = ytId($("#fYt").value);
+    $("#ytHint").innerHTML = $("#fYt").value.trim() === "" ? "비워두면 학생 화면에서 '연동 예정' 안내가 표시됩니다."
+      : (id ? '인식된 영상 ID: <b>' + esc(id) + '</b>' : '<span style="color:#dc2626">유튜브 주소를 인식하지 못했습니다.</span>');
+  }
+  $("#fType").addEventListener("change", syncType);
+  $("#fYt").addEventListener("input", syncYt);
+  syncType(); syncYt();
+
+  function bindQ(){
+    $("#qList").querySelectorAll("[data-rmq]").forEach(function(b){
+      b.addEventListener("click", function(){
+        const box = b.closest(".qbox");
+        box.parentNode.removeChild(box);
+        reindexQ();
+      });
+    });
+  }
+  function reindexQ(){
+    $("#qList").querySelectorAll(".qbox").forEach(function(box, i){
+      box.dataset.qi = i;
+      box.querySelector(".qhead b").textContent = "문제 " + (i+1);
+      box.querySelector("[data-rmq]").dataset.rmq = i;
+      box.querySelectorAll('input[type=radio]').forEach(function(r){ r.name = "ans" + i; });
+    });
+  }
+  bindQ();
+  $("#addQ").addEventListener("click", function(){
+    const n = $("#qList").querySelectorAll(".qbox").length;
+    $("#qList").insertAdjacentHTML("beforeend", qBlock(n, null));
+    bindQ();
+  });
+
+  $("#backList").addEventListener("click", renderAdminList);
+  $("#cancelC").addEventListener("click", renderAdminList);
+
+  $("#saveC").addEventListener("click", async function(){
+    const type = $("#fType").value;
+    const title = $("#fTitle").value.trim();
+    if(!title){ $("#saveMsg").textContent = "제목을 입력해 주세요."; return; }
+    const quiz = [];
+    $("#qList").querySelectorAll(".qbox").forEach(function(box){
+      const qt = box.querySelector(".q-text").value.trim();
+      const opts = Array.prototype.map.call(box.querySelectorAll(".q-opt"), function(x){ return x.value.trim(); });
+      const r = box.querySelector('input[type=radio]:checked');
+      if(qt && opts.filter(Boolean).length >= 2)
+        quiz.push({ q:qt, options:opts, answer: r ? Number(r.value) : 0 });
+    });
+    const data = {
+      category: $("#fCat").value,
+      type: type,
+      title: title,
+      desc: $("#fDesc").value.trim(),
+      youtubeId: type === "video" ? ytId($("#fYt").value) : "",
+      url: type === "article" ? $("#fUrl").value.trim() : "",
+      excerpt: type === "article" ? $("#fEx").value.trim() : "",
+      careers: $("#fCareer").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean),
+      quiz: quiz,
+      order: c.order || 99,
+      updatedAt: Date.now(),
+      updatedBy: ME.email
+    };
+    const id = editingId || ("c" + Date.now().toString(36));
+    try {
+      await setDoc(doc(db, "contents", id), data, { merge:true });
+      toast("저장했습니다", 1600);
+      setTimeout(renderAdminList, 300);
+    } catch(e){
+      $("#saveMsg").textContent = "저장 실패: " + e.code;
+    }
+  });
+}
+
+/* ===== 기본 콘텐츠 시드 ===== */
+async function seedContents(){
+  if(!confirm("기본 콘텐츠 15개를 등록할까요?\n(같은 ID가 있으면 덮어씁니다)")) return;
+  const batch = writeBatch(db);
+  SEED.forEach(function(c, i){
+    const o = Object.assign({}, c, { order:i, updatedAt:Date.now(), updatedBy:ME.email });
+    const id = o.id; delete o.id;
+    batch.set(doc(db, "contents", id), o, { merge:true });
+  });
+  try {
+    await batch.commit();
+    toast("기본 콘텐츠를 등록했습니다", 2000);
+    setTimeout(renderAdminList, 500);
+  } catch(e){ alert("등록 실패: " + e.code); }
+}
+
+const SEED = [
+ {id:"phy1",category:"물리",type:"video",title:"상온 초전도체는 왜 세상을 바꿀까?",
+  desc:"전기가 저항 없이 흐르면 어떤 일이 생길까? 자기부상열차부터 전력 손실 제로까지, 초전도 현상이 바꿀 미래를 살펴본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["재료공학자","물리학 연구원","에너지 정책 연구원"],
+  quiz:[{q:"초전도체의 가장 큰 특징은?",options:["전기 저항이 0이 된다","빛을 내뿜는다","무게가 가벼워진다","소리를 흡수한다"],answer:0},
+        {q:"초전도체를 활용한 기술로 알맞은 것은?",options:["자기부상열차","가스레인지","종이 인쇄","목재 가공"],answer:0}]},
+ {id:"phy2",category:"물리",type:"article",title:"인류가 처음 찍은 블랙홀 사진의 비밀",
+  desc:"지구만 한 망원경이 없는데 어떻게 블랙홀을 촬영했을까? 전 세계 망원경을 하나로 묶은 과학자들의 이야기.",
+  youtubeId:"",url:"",excerpt:"",careers:["천체물리학자","데이터 과학자"],
+  quiz:[{q:"블랙홀 촬영에 사용한 방법은?",options:["전 세계 망원경을 연결했다","위성 한 대로 찍었다","현미경을 썼다","그림으로 그렸다"],answer:0},
+        {q:"사진에서 검게 보이는 부분은?",options:["빛조차 빠져나오지 못하는 영역","구름","렌즈 얼룩","별의 표면"],answer:0}]},
+ {id:"phy3",category:"물리",type:"video",title:"롤러코스터 한 바퀴에 숨은 에너지 이야기",
+  desc:"첫 언덕만 높으면 나머지는 저절로 돈다? 위치·운동 에너지 전환으로 놀이기구의 원리를 풀어본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["놀이기구 설계 엔지니어","기계공학자"],
+  quiz:[{q:"가장 높은 지점에서 가장 큰 에너지는?",options:["위치 에너지","운동 에너지","열 에너지","소리 에너지"],answer:0},
+        {q:"내려올수록 늘어나는 에너지는?",options:["운동 에너지","위치 에너지","화학 에너지","핵 에너지"],answer:0}]},
+ {id:"che1",category:"화학",type:"video",title:"라면 스프에 숨어 있는 화학",
+  desc:"감칠맛의 정체는 무엇일까? 아미노산과 맛 분자의 세계, 그리고 \u201C맛을 설계하는\u201D 사람들의 일.",
+  youtubeId:"",url:"",excerpt:"",careers:["식품공학자","향미 연구원"],
+  quiz:[{q:"감칠맛을 내는 대표 물질은?",options:["글루탐산","포도당","물","산소"],answer:0},
+        {q:"향을 연구하는 직업은?",options:["향미 연구원","건축가","성우","약사"],answer:0}]},
+ {id:"che2",category:"화학",type:"article",title:"플라스틱을 먹어치우는 효소가 나타났다",
+  desc:"수백 년 썩지 않는 플라스틱을 몇 시간 만에 분해하는 효소를 과학자들이 개량하고 있다. 환경 문제를 화학으로 푸는 최전선.",
+  youtubeId:"",url:"",excerpt:"",careers:["환경화학자","생명공학 연구원"],
+  quiz:[{q:"기사에 나온 효소가 하는 일은?",options:["플라스틱을 분해한다","플라스틱을 새로 만든다","색을 입힌다","더 단단하게 만든다"],answer:0},
+        {q:"이 기술이 도움이 되는 문제는?",options:["환경 오염","교통 체증","수면 부족","통신 장애"],answer:0}]},
+ {id:"che3",category:"화학",type:"video",title:"불꽃놀이 색깔은 어떻게 만들까",
+  desc:"빨강·초록·파랑… 밤하늘의 색은 우연이 아니다. 금속마다 다른 불꽃 반응으로 색을 설계하는 원리.",
+  youtubeId:"",url:"",excerpt:"",careers:["화학 연구원","화공 엔지니어"],
+  quiz:[{q:"불꽃 색을 결정하는 것은?",options:["금속 원소의 종류","불의 크기","화약의 무게","날씨"],answer:0},
+        {q:"빨간 불꽃을 내는 대표 금속은?",options:["스트론튬","구리","나트륨","철"],answer:0}]},
+ {id:"bio1",category:"생명",type:"video",title:"내 몸속에 사는 100조 마리 미생물",
+  desc:"장 속 미생물이 기분과 면역까지 좌우한다고? 인간과 미생물의 공생 관계, 그리고 마이크로바이옴 연구.",
+  youtubeId:"",url:"",excerpt:"",careers:["미생물학자","제약 연구원"],
+  quiz:[{q:"장내 미생물이 영향을 주는 것은?",options:["면역과 기분","키","머리카락 색","시력"],answer:0},
+        {q:"이런 미생물 집단을 부르는 말은?",options:["마이크로바이옴","게놈","뉴런","박테리오파지"],answer:0}]},
+ {id:"bio2",category:"생명",type:"article",title:"mRNA 백신은 도대체 어떻게 작동할까",
+  desc:"몸에 설계도만 넣어 면역을 훈련시킨다는 발상. 코로나 백신으로 유명해진 mRNA 기술의 원리를 짚어본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["생명공학자","백신 개발 연구원"],
+  quiz:[{q:"mRNA 백신이 몸에 전달하는 것은?",options:["단백질 설계 정보","살아 있는 바이러스","항생제","비타민"],answer:0},
+        {q:"백신의 목적은?",options:["면역 반응을 미리 훈련시키는 것","체온을 올리는 것","영양 공급","소화 촉진"],answer:0}]},
+ {id:"bio3",category:"생명",type:"video",title:"멸종한 동물을 되살릴 수 있을까?",
+  desc:"매머드를 다시 볼 수 있을까? 유전자 편집으로 사라진 종을 복원하려는 시도와, 그 앞에 놓인 질문들.",
+  youtubeId:"",url:"",excerpt:"",careers:["유전공학자","보전생물학자"],
+  quiz:[{q:"멸종 동물 복원에 쓰이는 기술은?",options:["유전자 편집","용접","도금","증류"],answer:0},
+        {q:"복원 연구에서 함께 고민해야 할 것은?",options:["생태계에 미칠 영향","연료비","색상 선택","글꼴"],answer:0}]},
+ {id:"ear1",category:"지구·우주",type:"video",title:"누리호는 어떻게 우주로 갔나",
+  desc:"로켓은 무엇을 밀어내며 날아오를까? 우리 손으로 만든 발사체가 대기권을 뚫는 과정을 따라간다.",
+  youtubeId:"",url:"",excerpt:"",careers:["항공우주공학자","발사체 엔지니어"],
+  quiz:[{q:"로켓이 나아가는 원리는?",options:["작용·반작용","부력","모세관 현상","굴절"],answer:0},
+        {q:"다단 로켓을 쓰는 이유는?",options:["무게를 줄여 효율을 높이려고","색을 바꾸려고","소리를 줄이려고","길게 보이려고"],answer:0}]},
+ {id:"ear2",category:"지구·우주",type:"article",title:"기후 과학자들이 그리는 30년 뒤 지구",
+  desc:"데이터로 미래 날씨를 예측한다는 것. 기후 모델이 무엇을 말하고, 무엇은 아직 모르는지 정리했다.",
+  youtubeId:"",url:"",excerpt:"",careers:["기후학자","대기과학 연구원"],
+  quiz:[{q:"기후 모델이 사용하는 것은?",options:["관측 데이터와 계산","점성술","여론조사","설문지"],answer:0},
+        {q:"기후 변화의 주요 원인으로 지목되는 것은?",options:["온실가스 증가","달의 공전","지진","조류"],answer:0}]},
+ {id:"ear3",category:"지구·우주",type:"video",title:"지진은 정말 예측할 수 없을까",
+  desc:"땅속에서 무슨 일이 일어나는가. 지진파를 읽어내는 방법과, \u201C예측\u201D과 \u201C조기 경보\u201D의 차이.",
+  youtubeId:"",url:"",excerpt:"",careers:["지진학자","방재 엔지니어"],
+  quiz:[{q:"지진 조기 경보가 이용하는 것은?",options:["P파와 S파의 속도 차이","바람의 방향","기온","달의 위치"],answer:0},
+        {q:"지진 규모를 나타내는 단위는?",options:["매그니튜드","데시벨","루멘","와트"],answer:0}]},
+ {id:"eng1",category:"기술·공학",type:"video",title:"전기차 배터리 안에서 벌어지는 일",
+  desc:"충전과 방전은 결국 이온의 이동이다. 배터리 수명과 안전을 좌우하는 화학·전기의 만남을 들여다본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["배터리 연구원","전기공학자"],
+  quiz:[{q:"리튬이온 배터리에서 이동하는 것은?",options:["리튬 이온","산소 분자","물 분자","질소"],answer:0},
+        {q:"충전이란 무엇인가?",options:["이온을 원래 자리로 되돌리는 것","전선을 늘리는 것","온도를 낮추는 것","무게를 줄이는 것"],answer:0}]},
+ {id:"eng2",category:"기술·공학",type:"article",title:"AI는 어떻게 사람 말을 알아들을까",
+  desc:"문장을 숫자로 바꾸고, 다음에 올 말을 확률로 고른다. 언어 모델이 작동하는 방식을 차근차근 풀어본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["AI 연구원","데이터 엔지니어"],
+  quiz:[{q:"언어 모델이 문장을 다루는 방식은?",options:["숫자로 바꿔 처리한다","사전을 통째로 외운다","사람에게 물어본다","그림으로 그린다"],answer:0},
+        {q:"학습에 꼭 필요한 것은?",options:["많은 양의 데이터","넓은 책상","조용한 방","빠른 손"],answer:0}]},
+ {id:"eng3",category:"기술·공학",type:"video",title:"다리는 왜 무너지지 않을까",
+  desc:"수천 톤을 버티는 구조의 비밀. 힘이 흐르는 길을 설계하는 사람들의 계산을 따라가 본다.",
+  youtubeId:"",url:"",excerpt:"",careers:["토목공학자","구조 설계 엔지니어"],
+  quiz:[{q:"아치 구조가 힘을 견디는 방식은?",options:["힘을 옆으로 분산시킨다","힘을 없앤다","힘을 저장한다","힘을 반사한다"],answer:0},
+        {q:"다리 설계에서 고려해야 할 것은?",options:["하중과 바람","색깔","이름","글꼴"],answer:0}]}
+];
+
+/* ESC 닫기 */
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape") { OPEN_ID = null; $("#modalRoot").innerHTML = ""; }
 });
-
-$('#mBody').addEventListener('input', e => { if(e.target.id === 'reviewText') syncReview(); });
-
-/* ===================== 시작 ===================== */
-renderEnergy();
-renderGrid();
 </script>
 </body>
 </html>
