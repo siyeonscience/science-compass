@@ -342,7 +342,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
       <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.6-.15-3.15-.42-4.65H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.6 5.9c4.44-4.1 7.22-10.14 7.22-17.45z"/><path fill="#FBBC05" d="M10.4 28.7c-.48-1.45-.76-2.99-.76-4.7s.28-3.25.76-4.7l-7.8-6.1C.92 16.46 0 20.12 0 24s.92 7.54 2.6 10.8l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.6-5.9c-2.12 1.43-4.85 2.27-8.3 2.27-6.3 0-11.7-3.7-13.6-9.8l-7.8 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
       구글 계정으로 로그인
     </button>
-    <div class="loginnote">학교 계정(<b>@sen.go.kr</b> 또는 <b>@sen.es.kr</b>)만 이용할 수 있습니다.</div>
+    <div class="loginnote">학교 계정(<b>@sen.go.kr</b> · <b>@sen.es.kr</b>) 또는 <b>@gmail.com</b> 계정으로 이용할 수 있습니다.</div>
     <div class="err" id="loginerr" hidden></div>
   </div>
 </div>
@@ -397,7 +397,7 @@ main{max-width:1280px;margin:0 auto;padding:16px}
   </main>
 </div>
 
-<div class="ver">build 3.6</div>
+<div class="ver">build 3.8</div>
 <div class="ob" id="ob" hidden>
   <div class="obbox">
     <div class="oic">🧭</div>
@@ -432,7 +432,7 @@ const firebaseConfig = {
   messagingSenderId: "60584505992",
   appId: "1:60584505992:web:02cd84c334b183a5a9653d"
 };
-const ALLOW_DOMAINS = ["sen.go.kr", "sen.es.kr"];   // 중등(go) + 초등(es)
+const ALLOW_DOMAINS = ["sen.go.kr", "sen.es.kr", "gmail.com"];   // 중등(go) + 초등(es) + 개인 지메일
 function isAllowedEmail(email){
   return ALLOW_DOMAINS.some(function(d){
     return email.endsWith("@" + d) || email.endsWith("." + d);
