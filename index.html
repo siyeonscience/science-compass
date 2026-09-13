@@ -228,11 +228,17 @@ main{max-width:1280px;margin:0 auto;padding:16px}
 .lvnote{font-size:12px;color:var(--mut)}
 .bar{height:9px;border-radius:99px;background:#eef0f8;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--amber-l)}
-.catrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px}
-.catrow .nm{width:62px;flex:none;font-weight:700;color:var(--ink)}
-.catrow .track{flex:1;height:11px;border-radius:99px;background:#f1f3f9;overflow:hidden}
-.catrow .track i{display:block;height:100%;border-radius:99px}
-.catrow .vv{width:32px;text-align:right;color:var(--mut);font-size:12px;font-weight:700}
+.catchart{height:190px;display:flex;align-items:flex-end;justify-content:space-around;gap:10px;padding:8px 4px 0;border-bottom:1px solid var(--line)}
+.catbar{height:100%;flex:1;max-width:92px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:48px}
+.catbar-value{font-size:12px;font-weight:800;color:var(--ink);height:20px;display:flex;align-items:center}
+.catbar-track{height:135px;width:min(44px,70%);background:#f1f3f9;border-radius:8px 8px 0 0;display:flex;align-items:flex-end;overflow:hidden}
+.catbar-track i{display:block;width:100%;min-height:0;border-radius:8px 8px 0 0;transition:height .25s ease}
+.catbar-label{font-size:11.5px;font-weight:700;color:var(--ink);margin-top:7px;white-space:nowrap}
+@media(max-width:700px){
+  .catchart{height:175px;gap:5px}
+  .catbar-track{height:120px;width:32px}
+  .catbar-label{font-size:10.5px}
+}
 .topmsg{margin-top:10px;font-size:12.5px;color:var(--ink);background:var(--amber-bg);border:1px solid #fde68a;border-radius:9px;padding:9px 11px;line-height:1.5}
 .mychips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px}
 .mychip{padding:6px 13px;border:1px solid var(--line);border-radius:99px;background:#fff;font-size:12.5px;font-weight:700;color:var(--mut);cursor:pointer}
@@ -435,7 +441,7 @@ let PROFILE = { energy:0, totalEnergy:0, snacks:0 };
 let FILTER = "전체";
 let OPEN_ID = null;
 let VIEW = "explore";    // explore | my
-let MYFILTER = "all";    // all | scrap | review | pass
+let MYFILTER = "scrap";  // scrap | review
 
 /* ===== 유틸 ===== */
 const $  = s => document.querySelector(s);
@@ -628,7 +634,6 @@ function renderMy(){
     '<span class="lvnote">누적 에너지 ' + li.total + '개 · 다음 레벨까지 ' + li.need + '개</span></div>' +
     '<div class="bar"><i style="width:' + li.pct + '%"></i></div>' +
     '<div class="stats" style="margin-top:14px">' +
-      '<div class="stat"><b>' + viewed.length + '</b><span>본 콘텐츠</span></div>' +
       '<div class="stat"><b>' + reviewed.length + '</b><span>남긴 감상</span></div>' +
       '<div class="stat"><b>' + passedL.length + '</b><span>퀴즈 통과</span></div>' +
       '<div class="stat"><b>' + scrapped.length + '</b><span>스크랩</span></div>' +
@@ -636,17 +641,22 @@ function renderMy(){
       '<div class="stat"><b>' + PROFILE.energy + ' / 5</b><span>현재 게이지</span></div>' +
     '</div></div>';
 
-  /* --- 분야별 --- */
+  /* --- 분야별 기록 --- */
   h += '<div class="panel"><div class="ptitle">분야별 기록</div>';
   if(!viewed.length){
     h += '<div class="nodata">아직 본 콘텐츠가 없어요.<br>탐색 탭에서 관심 가는 것부터 열어보세요.</div>';
   } else {
+    h += '<div class="catchart">';
     keys.forEach(function(c){
       const v = byCat[c] || 0;
-      h += '<div class="catrow"><span class="nm">' + esc(c) + '</span>' +
-        '<span class="track"><i style="width:' + Math.round(v/mx*100) + '%;background:' + catColor(c) + '"></i></span>' +
-        '<span class="vv">' + v + '</span></div>';
+      const pct = Math.round(v / mx * 100);
+      h += '<div class="catbar">' +
+        '<div class="catbar-value">' + v + '</div>' +
+        '<div class="catbar-track"><i style="height:' + Math.max(v ? pct : 0, v ? 8 : 0) + '%;background:' + catColor(c) + '"></i></div>' +
+        '<div class="catbar-label">' + esc(c) + '</div>' +
+      '</div>';
     });
+    h += '</div>';
     if(byCat[top] > 0){
       h += '<div class="topmsg">지금까지 <b>' + esc(top) + '</b> 분야를 가장 많이 봤어요 (' + byCat[top] + '개). ' +
            (ranked.filter(function(k){ return !byCat[k]; }).length
@@ -658,15 +668,12 @@ function renderMy(){
 
   /* --- 기록 목록 --- */
   const tabs = [
-    { k:"all",    n:"전체 " + viewed.length },
     { k:"scrap",  n:"⭐ 스크랩 " + scrapped.length },
-    { k:"review", n:"✍️ 내 감상 " + reviewed.length },
-    { k:"pass",   n:"✓ 퀴즈 통과 " + passedL.length }
+    { k:"review", n:"✍️ 내 감상 " + reviewed.length }
   ];
-  let list = viewed;
-  if(MYFILTER === "scrap")  list = scrapped;
+  let list = scrapped;
   if(MYFILTER === "review") list = reviewed;
-  if(MYFILTER === "pass")   list = passedL;
+  if(MYFILTER === "scrap")  list = scrapped;
   list = list.slice().sort(function(a,b){ return (b.updatedAt||b.viewedAt||0) - (a.updatedAt||a.viewedAt||0); });
 
   h += '<div class="panel"><div class="ptitle">내 기록</div><div class="mychips">' +
